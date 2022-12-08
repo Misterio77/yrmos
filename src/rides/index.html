@@ -1,16 +1,12 @@
 ---
-permalink: /
 ---
 
-<article>
-  <header>
-    <input type="search" placeholder="Pesquise por destino, origem..."/>
-  </header>
-  <a>
-    {% include icons/filter_list.svg %}
-    Filtros
-  </a>
-</article>
+<nav aria-label="breadcrumb">
+  <ul>
+    <li><a href="/">Home</a></li>
+    <li>Caronas</li>
+  </ul>
+</nav>
 
 <section>
   <header>
@@ -24,6 +20,7 @@ permalink: /
       time="09:00"
       driver="Ellian Carlos"
       recommends="+50"
+      id="bb7f8fd8"
     %}
     {% include ride_listing.html
       start="Rodoviária"
@@ -31,6 +28,7 @@ permalink: /
       time="11:30"
       driver="Gabriel Fontes"
       recommends="-1"
+      id="bb7f8fd8"
     %}
     {% include ride_listing.html
       start="Kartódromo"
@@ -38,11 +36,12 @@ permalink: /
       time="20:00"
       driver="João Paulo Garcia"
       recommends="+15"
+      id="bb7f8fd8"
     %}
   </div>
 </section>
 
-<a role="button" href="/add_ride" class="add-ride"><span>Oferecer carona</span></a>
+<a role="button" href="/rides/add" class="add-ride"><span>Oferecer carona</span></a>
 
 {% comment %}
 vi: ft=liquid expandtab ts=2 sw=2
