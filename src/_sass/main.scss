@@ -8,12 +8,6 @@
   min-width: 320px;
 }
 
-.material-symbols-outlined {
-  margin-right: 0.3em;
-  vertical-align: bottom;
-  color: #fdd835 !important;
-}
-
 body > nav {
   box-shadow: var(--card-box-shadow);
   background-color: var(--card-sectionning-background-color);
@@ -23,31 +17,29 @@ body > nav {
   }
 }
 
+.highlighted {
+  color: var(--primary);
+}
+
 .ride {
-  .schedule {
+  section {
+    display: flex;
+    justify-content: space-between;
+  }
+  header {
     display: flex;
     justify-content: space-between;
     padding-bottom: 0;
-    p, span {
-      font-size: 1.2em;
+    span {
+      p {
+        font-size: 1.2em;
+      }
+      strong {
+        font-size: 1.4em;
+      }
     }
-    .time {
-      font-weight: bold;
-      font-size: 1.4em;
-    }
   }
-
-  .driver {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .grade {
-    color: var(--primary);
-  }
-
-  .show-ride {
-    margin-top: 1em;
+  footer {
     text-align: center;
   }
 }
