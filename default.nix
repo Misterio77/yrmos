@@ -1,25 +1,21 @@
-{ pkgs ? import <nixpkgs> { }
-, stdenv ? pkgs.stdenv
-, ruby ? pkgs.ruby
-, bundlerEnv ? pkgs.bundlerEnv
-}:
+{ pkgs ? import <nixpkgs> { } }:
 
 let
-  gems = bundlerEnv {
+  gems = pkgs.bundlerEnv {
     name = "website-env";
-    inherit ruby;
+    inherit (pkgs) ruby;
     gemfile = ./Gemfile;
     lockfile = ./Gemfile.lock;
     gemset = ./gemset.nix;
   };
 in
-stdenv.mkDerivation {
+pkgs.stdenv.mkDerivation {
   name = "yrmos";
   src = ./.;
 
   JEKYLL_ENV = "production";
 
-  buildInputs = [ gems ruby ];
+  buildInputs = [ gems pkgs.ruby ];
 
   buildPhase = ''
     ${gems}/bin/bundle exec jekyll build

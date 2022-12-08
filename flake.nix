@@ -7,20 +7,9 @@
       pkgsFor = nixpkgs.legacyPackages;
     in
     rec {
-      packages = forAllSystems (system: rec {
-        default = site;
-        site = pkgsFor.${system}.callPackage ./. { };
-        serve = pkgsFor.${system}.writeShellScriptBin "serve" ''
-          echo "Serving on http://localhost:4000"
-          ${pkgsFor.${system}.webfs}/bin/webfsd -p 4000 -F -f index.html -r ${site}/public
-        '';
+      packages = forAllSystems (system: {
+        default = pkgsFor.${system}.callPackage ./. { };
       });
-
-      apps = forAllSystems (system: {
-        default = {
-          type = "app";
-          program = "${packages.${system}.serve}/bin/serve";
-        };
-      });
+      hydraJobs = packages;
     };
 }
