@@ -1,22 +1,24 @@
-<nav class="container-fluid">
-  <menu>
-  </menu>
+<div>
+  <nav class="container-fluid">
+    <menu>
+    </menu>
 
-  <a href="/" class="logo" data-tooltip="Home" data-placement="bottom">
-    {% include logo.svg %}
-    Yrmos
-  </a>
+    <a href="/" class="logo" data-tooltip="Home" data-placement="bottom">
+      {% include logo.svg %}
+      Yrmos
+    </a>
 
-  <a href="/profiles/ellian-carlos.html" data-tooltip="Perfil" data-placement="bottom">
-    {% include icons/account_circle.svg %}
-  </a>
-</nav>
-<nav class="container-fluid search">
-  <form action="/rides">
-    <input type="search" placeholder="Destino, origem..."/>
-    <a data-tooltip="Filtros" data-placement="bottom">{% include icons/filter_list.svg %}</a>
-  </form>
-</nav>
+    <a href="/profiles/ellian-carlos.html" data-tooltip="Perfil" data-placement="bottom">
+      {% include icons/account_circle.svg %}
+    </a>
+  </nav>
+  <nav class="container-fluid search">
+    <form action="/rides">
+      <input type="search" placeholder="Destino, origem..."/>
+      <a data-tooltip="Filtros" data-placement="bottom">{% include icons/filter_list.svg %}</a>
+    </form>
+  </nav>
+</div>
 
 {% comment %}
 vi: ft=liquid expandtab ts=2 sw=2

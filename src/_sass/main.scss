@@ -13,29 +13,31 @@ section header h1 {
 }
 
 // Nav bar
-body > nav {
+body > div {
   box-shadow: var(--card-box-shadow);
   background-color: var(--card-sectionning-background-color);
-  align-items: center;
-  .logo {
-    margin: {
-      top: 0.3em;
-      bottom: 0.3em;
+  nav {
+    align-items: center;
+    .logo {
+      margin: {
+        top: 0.3em;
+        bottom: 0.3em;
+      }
     }
-  }
-  &.search {
-    form {
-      flex: auto;
-      display: flex;
-      align-items: baseline;
-      justify-content: center;
-      input {
-        max-width: 30em;
-        margin: {
-          top: 0;
-          bottom: 0;
-          left: 0.2em;
-          right: 0.6em;
+    &.search {
+      form {
+        flex: auto;
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        input {
+          max-width: 30em;
+          margin: {
+            top: 0;
+            bottom: 0;
+            left: 0.2em;
+            right: 0.6em;
+          }
         }
       }
     }
