@@ -12,27 +12,35 @@ permalink: /
   </a>
 </article>
 
-{% include ride.html
-  start="Campus I"
-  end="Campus II"
-  time="09:00"
-  driver="Ellian Carlos"
-  grade="5.0"
-%}
-{% include ride.html
-  start="Rodoviária"
-  end="UFSCar"
-  time="11:30"
-  driver="Gabriel Fontes"
-  grade="3.9"
-%}
-{% include ride.html
-  start="Kartódromo"
-  end="Arena TUSCA"
-  time="20:00"
-  driver="João Paulo Garcia"
-  grade="4.8"
-%}
+<section>
+  <header>
+    <h1>Caronas disponíveis</h1>
+  </header>
+
+  <div class="grid">
+    {% include ride.html
+      start="Campus I"
+      end="Campus II"
+      time="09:00"
+      driver="Ellian Carlos"
+      grade="5.0"
+    %}
+    {% include ride.html
+      start="Rodoviária"
+      end="UFSCar"
+      time="11:30"
+      driver="Gabriel Fontes"
+      grade="3.9"
+    %}
+    {% include ride.html
+      start="Kartódromo"
+      end="Arena TUSCA"
+      time="20:00"
+      driver="João Paulo Garcia"
+      grade="4.8"
+    %}
+  </div>
+</section>
 
 {% comment %}
 vi: ft=liquid expandtab ts=2 sw=2

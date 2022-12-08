@@ -8,6 +8,11 @@
   min-width: 320px;
 }
 
+section header h1 {
+  text-align: center;
+}
+
+// Nav bar
 body > nav {
   box-shadow: var(--card-box-shadow);
   background-color: var(--card-sectionning-background-color);
@@ -21,25 +26,38 @@ body > nav {
   color: var(--primary);
 }
 
+.grid {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
+}
+
+// Components
+
 .ride {
-  section {
-    display: flex;
-    justify-content: space-between;
-  }
+  flex: auto;
+  max-width: 32em;
+  min-width: 20em;
+  margin: 0.75em;
   header {
     display: flex;
     justify-content: space-between;
     padding-bottom: 0;
-    span {
-      p {
-        font-size: 1.2em;
-      }
-      strong {
-        font-size: 1.4em;
-      }
-    }
   }
   footer {
     text-align: center;
+    padding: 2em;
+  }
+
+  .location p {
+    font-size: 1.2em;
+  }
+  time {
+    font-weight: bold;
+    font-size: 1.4em;
+  }
+  .driver {
+    display: flex;
+    justify-content: space-between;
   }
 }

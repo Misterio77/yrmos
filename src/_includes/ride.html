@@ -1,18 +1,22 @@
 <article class="ride">
+
   <header>
-    <span>
-      <p>{% include icons/directions_car.svg class="highlighted" %} {{ include.start }}</p>
-      <p>{% include icons/sports_score.svg class="highlighted" %} {{ include.end }}</p>
+    <span class="location">
+      <p>{% include icons/directions_car.svg %} {{ include.start }}</p>
+      <p>{% include icons/sports_score.svg %} {{ include.end }}</p>
     </span>
-    <span><strong>{{ include.time }}</strong></span>
+    <time>{{ include.time }}</time>
   </header>
-  <section>
-    <span><a>{% include icons/account_circle.svg %} {{ include.driver }}</a></span>
-    <span class="highlighted">{% include icons/grade.svg %} {{ include.grade }}</span>
-  </section>
+
+  <a class="driver">
+    <span>{% include icons/account_circle.svg %} {{ include.driver }}</span>
+    <span>{% include icons/grade.svg %} {{ include.grade }}</span>
+  </a>
+
   <footer>
     <a href="carona.html">Ver carona →</a>
   </footer>
+
 </article>
 
 {% comment %}
