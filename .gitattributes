@@ -1,1 +1,2 @@
 gemset.nix linguist-generated
+**/*.html linguist-language=liquid
