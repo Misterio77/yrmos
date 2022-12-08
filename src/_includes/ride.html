@@ -1,0 +1,32 @@
+<article class="ride">
+  <header class="schedule">
+    <div class="location">
+      <p>
+        {% include icons/directions_car.svg %}
+        {{ include.start }}
+      </p>
+      <p>
+        {% include icons/sports_score.svg %}
+        {{ include.end }}
+      </p>
+    </div>
+    <div class="time">{{ include.time }}</div>
+  </header>
+  <div class="driver">
+    <p>
+      {% include icons/account_circle.svg %}
+      {{ include.driver }}
+    </p>
+    <p class="grade">
+      {% include icons/grade.svg %}
+      {{ include.grade }}
+    </p>
+  </div>
+  <footer class="show-ride">
+    <a href="carona.html">Ver carona →</a>
+  </footer>
+</article>
+
+{% comment %}
+vi: ft=liquid expandtab ts=2 sw=2
+{% endcomment %}

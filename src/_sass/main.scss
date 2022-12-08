@@ -1,0 +1,53 @@
+@import "pico/scss/pico";
+
+:root {
+  --primary: #fdd835 !important;
+  --primary-hover: #fbc02d !important;
+  --primary-focus: rgba(253, 216, 53, 0.125) !important;
+  --primary-inverse: rgba(0, 0, 0, 0.75) !important;
+  min-width: 320px;
+}
+
+.material-symbols-outlined {
+  margin-right: 0.3em;
+  vertical-align: bottom;
+  color: #fdd835 !important;
+}
+
+body > nav {
+  box-shadow: var(--card-box-shadow);
+  background-color: var(--card-sectionning-background-color);
+  .logo {
+    display: flex;
+    padding: 0.8em;
+  }
+}
+
+.ride {
+  .schedule {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 0;
+    p, span {
+      font-size: 1.2em;
+    }
+    .time {
+      font-weight: bold;
+      font-size: 1.4em;
+    }
+  }
+
+  .driver {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .grade {
+    color: var(--primary);
+  }
+
+  .show-ride {
+    margin-top: 1em;
+    text-align: center;
+  }
+}

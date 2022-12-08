@@ -1,0 +1,11 @@
+name: Yrmos
+theme: pico-jekyll
+exclude:
+  - flake.nix
+  - flake.lock
+  - Gemfile
+  - Gemfile.lock
+defaults:
+  - values:
+      layout: "default"
+source: src
