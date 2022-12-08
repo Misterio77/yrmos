@@ -1,7 +1,7 @@
 @import "pico/scss/pico";
 
 :root {
-  --primary: #fdd835 !important;
+  --primary: #fb8c00 !important;
   --primary-hover: #fbc02d !important;
   --primary-focus: rgba(253, 216, 53, 0.125) !important;
   --primary-inverse: rgba(0, 0, 0, 0.75) !important;
@@ -16,9 +16,12 @@ section header h1 {
 body > nav {
   box-shadow: var(--card-box-shadow);
   background-color: var(--card-sectionning-background-color);
+  align-items: center;
   .logo {
-    display: flex;
-    padding: 0.8em;
+    margin: {
+      top: 0.3em;
+      bottom: 0.3em;
+    }
   }
 }
 
@@ -43,10 +46,12 @@ body > nav {
     display: flex;
     justify-content: space-between;
     padding-bottom: 0;
+    margin-bottom: 1.5em;
   }
   footer {
     text-align: center;
     padding: 2em;
+    margin-top: 1.5em;
   }
 
   .location p {
@@ -60,4 +65,22 @@ body > nav {
     display: flex;
     justify-content: space-between;
   }
+}
+
+.add-ride {
+  position: fixed;
+  bottom: 2em;
+  right: 2em;
+  border-radius: 1em;
+  span {
+    text-align: center;
+    vertical-align: center;
+  }
+}
+
+.positive {
+  color: var(--ins-color);
+}
+.negative {
+  color: var(--del-color);
 }

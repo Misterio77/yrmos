@@ -18,29 +18,31 @@ permalink: /
   </header>
 
   <div class="grid">
-    {% include ride.html
+    {% include ride_listing.html
       start="Campus I"
       end="Campus II"
       time="09:00"
       driver="Ellian Carlos"
-      grade="5.0"
+      recommends="+50"
     %}
-    {% include ride.html
+    {% include ride_listing.html
       start="Rodoviária"
       end="UFSCar"
       time="11:30"
       driver="Gabriel Fontes"
-      grade="3.9"
+      recommends="-1"
     %}
-    {% include ride.html
+    {% include ride_listing.html
       start="Kartódromo"
       end="Arena TUSCA"
       time="20:00"
       driver="João Paulo Garcia"
-      grade="4.8"
+      recommends="+15"
     %}
   </div>
 </section>
+
+<a role="button" href="/add_ride" class="add-ride"><span>Oferecer carona</span></a>
 
 {% comment %}
 vi: ft=liquid expandtab ts=2 sw=2

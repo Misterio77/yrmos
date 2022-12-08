@@ -1,0 +1,31 @@
+<article class="ride">
+
+  <header>
+    <div class="location">
+      <p>{% include icons/directions_car.svg %} {{ include.start }}</p>
+      <p>{% include icons/sports_score.svg %} {{ include.end }}</p>
+    </div>
+    <time>{{ include.time }}</time>
+  </header>
+
+  <div class="driver">
+    <a href="/profile">
+      <span>{% include icons/account_circle.svg %} {{ include.driver }}</span>
+    </a>
+    {% assign recommends = include.recommends | plus: 0 %}
+    {% if recommends < 0 %}
+      <span class="negative">{{ recommends }} {% include icons/thumb_down.svg %}</span>
+    {% else %}
+      <span class="positive">{{ recommends }} {% include icons/thumb_up.svg %}</span>
+    {% endif %}
+  </div>
+
+  <footer>
+    <a href="/ride">Ver carona →</a>
+  </footer>
+
+</article>
+
+{% comment %}
+vi: ft=liquid expandtab ts=2 sw=2
+{% endcomment %}
