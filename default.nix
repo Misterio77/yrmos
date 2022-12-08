@@ -1,4 +1,8 @@
-{ stdenv, ruby, bundlerEnv }:
+{ pkgs ? import <nixpkgs> { }
+, stdenv ? pkgs.stdenv
+, ruby ? pkgs.ruby
+, bundlerEnv ? pkgs.bundlerEnv
+}:
 
 let
   gems = bundlerEnv {

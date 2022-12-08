@@ -23,9 +23,3 @@ nix build
 ```
 
 A saída estará em `result/public`
-
-Você também pode acessar uma shell de desenvolvimento (com ruby, jekyll, prettier, etc):
-
-```
-nix develop
-```
