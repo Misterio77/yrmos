@@ -9,7 +9,7 @@
   </header>
 
   <div class="driver">
-    <a href="/profile">
+    <a href="/profiles/{{ include.driver | slugify }}.html">
       <span>{% include icons/account_circle.svg %} {{ include.driver }}</span>
     </a>
     {% assign recommends = include.recommends | plus: 0 %}
@@ -21,7 +21,7 @@
   </div>
 
   <footer>
-    <a href="/rides/{{ include.id }}">Ver carona →</a>
+    <a href="/rides/{{ include.id }}.html">Ver carona →</a>
   </footer>
 
 </article>
