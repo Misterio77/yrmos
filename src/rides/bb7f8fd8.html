@@ -42,8 +42,11 @@
   </section>
   <footer>
     <section>
+      {% assign pix = "00020126330014BR.GOV.BCB.PIX0111123456789015204000053039865802BR5913Ellian Carlos6010Sao Carlos62070503***6304CBC3" %}
       <h2>Pagamento Pix</h2>
-      <img width=256 src="https://qrcode.tec-it.com/API/QRCode?data=00020126330014BR.GOV.BCB.PIX0111238587088605204000053039865802BR5913Ellian Carlos6010Sao Carlos62070503***6304DF87&color=222&backcolor=eee&quietzone=2" />
+      <img width=256 height=256 src="https://qrcode.tec-it.com/API/QRCode?data={{ pix }}&color=222&backcolor=eee&quietzone=2" />
+      <hr />
+      <code>{{ pix }}</code>
     </section>
   </footer>
 </article>
