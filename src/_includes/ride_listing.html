@@ -1,6 +1,6 @@
-<article class="ride">
+<article class="ride-listing">
 
-  <header>
+  <header class="info">
     <div class="location">
       <p>{% include icons/directions_car.svg %} {{ include.start }}</p>
       <p>{% include icons/sports_score.svg %} {{ include.end }}</p>
@@ -20,7 +20,7 @@
     {% endif %}
   </div>
 
-  <footer>
+  <footer class="show-ride">
     <a href="/rides/{{ include.id }}.html">Ver carona →</a>
   </footer>
 
