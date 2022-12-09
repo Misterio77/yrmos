@@ -1,26 +1,25 @@
-<article class="ride-listing">
+<article class="ride">
 
-  <header class="info">
-    <div class="location">
-      <p>{% include icons/directions_car.svg %} {{ include.start }}</p>
-      <p>{% include icons/sports_score.svg %} {{ include.end }}</p>
+  <header class="row">
+    <div>
+      <h3>{% include icons/directions_car.svg %} {{ include.start }}</h3>
+      <h3>{% include icons/sports_score.svg %} {{ include.end }}</h3>
     </div>
-    <time>{{ include.time }}</time>
+    <h2>{{ include.time }}</h2>
   </header>
 
-  <div class="driver">
-    <a href="/profiles/{{ include.driver | slugify }}.html">
-      <span>{% include icons/account_circle.svg %} {{ include.driver }}</span>
-    </a>
-    {% assign recommends = include.recommends | plus: 0 %}
-    {% if recommends < 0 %}
-      <span class="negative">{{ recommends }} {% include icons/thumb_down.svg %}</span>
-    {% else %}
-      <span class="positive">{{ recommends }} {% include icons/thumb_up.svg %}</span>
-    {% endif %}
-  </div>
+  <a href="/profiles/{{ include.driver | slugify }}.html">
+    <span>{% include icons/account_circle.svg %} {{ include.driver }}</span>
+  </a>
 
-  <footer class="show-ride">
+  {% assign recommends = include.recommends | plus: 0 %}
+  {% if recommends < 0 %}
+    <span class="negative">{{ recommends }} {% include icons/thumb_down.svg %}</span>
+  {% else %}
+    <span class="positive">{{ recommends }} {% include icons/thumb_up.svg %}</span>
+  {% endif %}
+
+  <footer>
     <a href="/rides/{{ include.id }}.html">Ver carona →</a>
   </footer>
 

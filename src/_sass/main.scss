@@ -46,46 +46,21 @@ body > div {
   justify-content: space-around;
 }
 
+.row {
+  display: flex;
+  justify-content: space-between;
+  min-width: 25em;
+  h3 {
+    --font-size: 1.4em;
+  }
+  h2 {
+    --font-size: 1.5em;
+  }
+}
+
 // Components
 
-.ride-listing {
-  flex: auto;
-  max-width: 32em;
-  min-width: 20em;
-  margin: 0.75em;
-}
-.ride,
-.ride-listing {
-  header {
-    padding-bottom: 1em;
-    margin-bottom: 1.5em;
-  }
-  footer {
-    padding: 2em;
-    margin-top: 1.5em;
-  }
-
-  time {
-    font-weight: bold;
-    font-size: 1.4em;
-  }
-  .info {
-    display: flex;
-    justify-content: space-between;
-  }
-  .show-ride {
-    text-align: center;
-  }
-  .driver {
-    display: flex;
-    justify-content: space-between;
-  }
-  .location p {
-    font-size: 1.3em;
-  }
-}
-
-.add-ride {
+.fab {
   position: fixed;
   bottom: 2em;
   right: 2em;

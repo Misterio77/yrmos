@@ -13,35 +13,38 @@
   <header>
     <h1>Carona: <code>bb7f8fd8</code></h1>
   </header>
-  <div class="info">
-    <div class="location">
-      <p>{% include icons/directions_car.svg %} Campus I</p>
-      <p>{% include icons/sports_score.svg %} Campus II</p>
+  <section>
+    <div class="row">
+      <div>
+        <h3>{% include icons/directions_car.svg %} Campus I</h3>
+        <h3>{% include icons/sports_score.svg %} Campus II</h3>
+      </div>
+      <h2>09:00</h2>
     </div>
-    <time>09:00</time>
-  </div>
-  <div class="driver">
-    <a href="/profiles/ellian-carlos.html">
-      <span>{% include icons/account_circle.svg %}Ellian Carlos</span>
-    </a>
+    <a href="/profiles/ellian-carlos.html"><span>{% include icons/account_circle.svg %}Ellian Carlos</span></a>
     <span class="positive">50 {% include icons/thumb_up.svg %}</span>
-  </div>
-  <footer class="riders">
+  </section>
+  <section>
     <h2>Passageiros</h2>
     <ul>
       <li>
-        <a href="/profiles/fulano.html">
-          <span>{% include icons/account_circle.svg %}Fulano da Silva</span>
-        </a>
+        <a href="/profiles/fulano.html"><span>{% include icons/account_circle.svg %}Fulano da Silva</span></a>
         <span class="positive">4 {% include icons/thumb_up.svg %}</span>
       </li>
       <li>
-        <a href="/profiles/irineu.html">
-          <span>{% include icons/account_circle.svg %}Irineu José</span>
-        </a>
+        <a href="/profiles/irineu.html"><span>{% include icons/account_circle.svg %}Irineu José</span></a>
         <span class="positive">2 {% include icons/thumb_up.svg %}</span>
       </li>
+      <li>Espaço vago</li>
+      <li>Espaço vago</li>
     </ul>
+    <a role="button" href="javascript:void(0)">Reservar vaga</a>
+  </section>
+  <footer>
+    <section>
+      <h2>Pagamento Pix</h2>
+      <img width=256 src="https://qrcode.tec-it.com/API/QRCode?data=00020126330014BR.GOV.BCB.PIX0111238587088605204000053039865802BR5913Ellian Carlos6010Sao Carlos62070503***6304DF87&color=222&backcolor=eee&quietzone=2" />
+    </section>
   </footer>
 </article>
 
