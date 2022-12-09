@@ -24,6 +24,10 @@ section header h1 {
   display: flex;
   flex-flow: row wrap;
   justify-content: space-around;
+  article {
+    flex: auto;
+    max-width: 60em;
+  }
 }
 
 .row {
