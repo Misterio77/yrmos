@@ -1,0 +1,12 @@
+[package]
+name = "yrmos"
+version = "0.1.0"
+description = "MVP do sistema Yrmos"
+authors = [ "Gabriel Fontes <hi@m7.rs>"]
+license = "MIT"
+homepage = "https://github.com/Misterio77/Yrmos"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
