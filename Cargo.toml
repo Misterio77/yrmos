@@ -9,4 +9,57 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
+[dependencies.axum]
+version = "0.6"
+
+[dependencies.maud]
+version = "0.24"
+features = [ "axum" ]
+
+[dependencies.sqlx]
+version = "0.6"
+features = [ "runtime-tokio-rustls", "postgres", "decimal", "uuid", "offline", "chrono", "ipnetwork" ]
+
+[dependencies.rust_decimal]
+version = "1.27"
+
+[dependencies.uuid]
+version = "1.2"
+features = [ "v4", "fast-rng", "serde" ]
+
+[dependencies.chrono]
+version = "0.4"
+features = [ "serde" ]
+
+[dependencies.tokio]
+version = "1.23"
+features = [ "full" ]
+
+[dependencies.serde]
+version = "1.0"
+features = [ "derive" ]
+
+[dependencies.clap]
+version = "4.0"
+features = [ "derive", "env" ]
+
+[dependencies.tower-cookies]
+version = "0.8"
+features = [ "signed" ]
+
+[dependencies.anyhow]
+version = "1.0"
+
+[dependencies.simple_logger]
+version = "4.0"
+
+[dependencies.log]
+version = "0.4"
+features = [ "std", "serde" ]
+
+[dependencies.async-trait]
+version = "0.1"
+
+[build-dependencies.grass]
+version = "0.11"
+default-features = false

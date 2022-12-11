@@ -1,0 +1,113 @@
+// Import full Pico source code
+@import "pico/pico";
+
+:root {
+  --primary: #fb8c00 !important;
+  --primary-hover: #fbc02d !important;
+  --primary-focus: rgba(253, 216, 53, 0.125) !important;
+  --primary-inverse: rgba(0, 0, 0, 0.75) !important;
+  min-width: 320px;
+}
+
+// Set selection color
+::selection {
+  background: var(--primary-hover);
+}
+
+code {
+  max-width: 100%;
+}
+
+section header h1 {
+  text-align: center;
+}
+
+.positive {
+  color: var(--ins-color);
+}
+.negative {
+  color: var(--del-color);
+}
+
+.grid {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
+  article {
+    flex: auto;
+    max-width: 60em;
+  }
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  min-width: 15em;
+  @media (min-width: 600px) {
+    min-width: 25em;
+  }
+  h3 {
+    --font-size: 1.4em;
+  }
+  h2 {
+    --font-size: 1.5em;
+  }
+}
+
+// Components
+
+body > div {
+  box-shadow: var(--card-box-shadow);
+  background-color: var(--card-sectionning-background-color);
+  nav {
+    align-items: center;
+    .logo {
+      margin: 0.3em;
+    }
+    form {
+      flex: auto;
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      * {
+        margin: 0 0.2em 0 0.2em
+      }
+      input {
+        max-width: 30em;
+      }
+    }
+  }
+}
+
+.fab {
+  position: fixed;
+  bottom: 2em;
+  right: 2em;
+  border-radius: 1em;
+  span {
+    text-align: center;
+    vertical-align: center;
+  }
+}
+
+#flash {
+  text-align: center;
+  padding-bottom: 3rem;
+  sup {
+    background-color: var(--primary);
+    color: var(--primary-inverse);
+    font-weight: bold;
+    border-radius: 0.2rem;
+    margin: 0.2rem;
+    padding: 0.4rem 0.5rem;
+  }
+  &.success sup {
+    background-color: var(--success-color);
+  }
+  &.error sup {
+    background-color: var(--error-color);
+  }
+  &.warning sup {
+    background-color: var(--warn-color);
+  }
+}

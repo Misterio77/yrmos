@@ -8,9 +8,12 @@ pkgs.mkShell {
     rust-analyzer
     rustfmt
     clippy
+    sqlx-cli
     # Postgres tooling
     postgresql
     pgformatter
     sqls
+    # Diagram
+    plantuml
   ];
 }

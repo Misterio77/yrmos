@@ -1,0 +1,33 @@
+@startuml
+entity Person {
+    * Uuid id
+    --
+    * String email
+    * String password
+    * String real_name
+    String pix_key
+    Uuid current_session
+}
+
+entity Ride {
+    * Uuid id
+    --
+    * Person driver
+    * int seats
+    * DateTime departure
+    * String start_location
+    * String end_location
+    Decimal cost
+}
+
+entity Rider {
+    * Uuid ride_id
+    * Uuid person_id
+    --
+    bool review
+}
+
+Rider }o--|| Person
+Rider }o--|| Ride
+
+@enduml
