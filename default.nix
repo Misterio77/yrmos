@@ -7,8 +7,8 @@ let
   picocss = pkgs.fetchFromGitHub {
     owner = "picocss";
     repo = "pico";
-    rev = "ff30e814ec345de49fd2ef12ac392a4a238b764c";
-    sha256 = "sha256-3APZCRY9vOwK0vMpMkFAUyD9wobOX6+PlR45e+uY0EE=";
+    rev = "v1.4.4";
+    sha256 = "sha256-k3ovaAa/mC+jO9rgyOZAq8FfwWJkK3uypwxZ6NXvFEo=";
   };
 in
 pkgs.rustPlatform.buildRustPackage rec {
