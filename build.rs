@@ -3,7 +3,7 @@ use std::{env, fs, path::Path};
 fn main() {
     let out = env::var_os("OUT_DIR").unwrap();
 
-    let options = grass::Options::default().style(grass::OutputStyle::Compressed);
+    let options = grass::Options::default();
     let compiled_css =
         grass::from_path("scss/style.scss", &options).expect("Couldn't compile sass");
     let dest_file = Path::new(&out).join("style.css");

@@ -1,7 +1,8 @@
-use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use sqlx::{postgres::PgPool, FromRow};
 use uuid::Uuid;
+
+use crate::AppError;
 
 #[derive(Serialize, Deserialize, FromRow, Default)]
 pub struct Rider {
@@ -11,7 +12,7 @@ pub struct Rider {
 }
 
 impl Rider {
-    async fn fetch(db: &PgPool, ride: Uuid, person: &str) -> Result<Self> {
+    async fn fetch(db: &PgPool, ride: Uuid, person: &str) -> Result<Self, AppError> {
         sqlx::query_as!(
             Self,
             "SELECT ride, person, review
@@ -25,7 +26,7 @@ impl Rider {
         .await
         .map_err(Into::into)
     }
-    async fn list(db: &PgPool, person: &str) -> Result<Vec<Self>> {
+    async fn list(db: &PgPool, person: &str) -> Result<Vec<Self>, AppError> {
         sqlx::query_as!(
             Self,
             "SELECT ride, person, review
@@ -37,7 +38,7 @@ impl Rider {
         .await
         .map_err(Into::into)
     }
-    async fn delete(db: &PgPool, ride: Uuid, person: &str) -> Result<()> {
+    async fn delete(db: &PgPool, ride: Uuid, person: &str) -> Result<(), AppError> {
         sqlx::query!(
             "DELETE FROM rider
             WHERE ride = $1 AND person = $2
@@ -50,7 +51,7 @@ impl Rider {
         .map_err(Into::into)
         .map(|_| ())
     }
-    async fn insert(&self, db: &PgPool) -> Result<()> {
+    async fn insert(&self, db: &PgPool) -> Result<(), AppError> {
         sqlx::query!(
             "INSERT INTO rider
             (ride, person, review)

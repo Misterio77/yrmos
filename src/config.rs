@@ -1,4 +1,3 @@
-use anyhow::Result;
 use clap::Parser;
 use log::LevelFilter;
 use simple_logger::SimpleLogger;
@@ -6,7 +5,7 @@ use sqlx::{postgres::PgPoolOptions, PgPool};
 use std::net::{IpAddr, SocketAddr};
 use tower_cookies::Key;
 
-use crate::AppState;
+use crate::{AppState, AppError};
 
 #[derive(Parser, Clone)]
 pub struct AppConfig {
@@ -23,10 +22,10 @@ pub struct AppConfig {
 }
 
 impl AppConfig {
-    pub async fn connect_db(&self) -> Result<PgPool> {
+    pub async fn connect_db(&self) -> Result<PgPool, AppError> {
         Ok(PgPoolOptions::new().connect(&self.database_url).await?)
     }
-    pub async fn get_cookie_key(&self) -> Result<Key> {
+    pub async fn get_cookie_key(&self) -> Result<Key, AppError> {
         Ok(match &self.secret_key {
             Some(key) => Key::from(key.as_bytes()),
             None => Key::generate(),
@@ -38,7 +37,7 @@ impl AppConfig {
     pub fn get_addr(&self) -> SocketAddr {
         SocketAddr::from((self.address, self.port))
     }
-    pub async fn to_state(&self) -> Result<AppState> {
+    pub async fn to_state(&self) -> Result<AppState, AppError> {
         Ok(AppState {
             cookie_key: self.get_cookie_key().await?,
             db_pool: self.connect_db().await?,

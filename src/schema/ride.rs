@@ -1,11 +1,10 @@
-use anyhow::Result;
 use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use sqlx::{postgres::PgPool, FromRow};
 use uuid::Uuid;
 
-use super::person::Person;
+use crate::{schema::person::Person, AppError};
 
 #[derive(Serialize, Deserialize, FromRow, Default)]
 pub struct Ride {
@@ -19,8 +18,8 @@ pub struct Ride {
 }
 
 impl Ride {
-    async fn fetch(db: &PgPool, id: Uuid) -> Result<Self> {
-        Ok(sqlx::query_as!(
+    async fn fetch(db: &PgPool, id: Uuid) -> Result<Self, AppError> {
+        sqlx::query_as!(
             Self,
             "SELECT id, driver, seats, departure, start_location, end_location, cost
             FROM ride
@@ -29,21 +28,23 @@ impl Ride {
             id
         )
         .fetch_one(db)
-        .await?)
+        .await
+        .map_err(Into::into)
     }
-    async fn list(db: &PgPool, driver: &str) -> Result<Vec<Self>> {
+    async fn list(db: &PgPool, driver: &str, future_only: bool) -> Result<Vec<Self>, AppError> {
         sqlx::query_as!(
             Self,
             "SELECT id, driver, seats, departure, start_location, end_location, cost
             FROM ride
-            WHERE driver = $1",
-            driver
+            WHERE driver = $1 AND ((NOT $2) OR (departure > NOW()))",
+            driver,
+            future_only
         )
         .fetch_all(db)
         .await
         .map_err(Into::into)
     }
-    async fn insert(&self, db: &PgPool) -> Result<()> {
+    async fn insert(&self, db: &PgPool) -> Result<(), AppError> {
         sqlx::query!(
             "INSERT INTO ride
             (id, driver, seats, departure, start_location, end_location, cost)
@@ -70,7 +71,7 @@ impl Ride {
         start_location: String,
         end_location: String,
         cost: Option<Decimal>,
-    ) -> Result<Self> {
+    ) -> Result<Self, AppError> {
         let ride = Self {
             id: Uuid::new_v4(),
             driver: String::from(&driver.email),
@@ -84,7 +85,7 @@ impl Ride {
         Ok(ride)
     }
 
-    pub async fn get_driver(&self, db: &PgPool) -> Result<Person> {
+    pub async fn get_driver(&self, db: &PgPool) -> Result<Person, AppError> {
         Person::get(db, &self.driver).await
     }
 }

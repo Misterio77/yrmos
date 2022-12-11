@@ -1,8 +1,7 @@
-use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use sqlx::{postgres::PgPool, FromRow};
 
-use crate::schema::session::Session;
+use crate::{AppError, schema::Session};
 
 #[derive(Serialize, Deserialize, FromRow, Default)]
 pub struct Person {
@@ -14,7 +13,7 @@ pub struct Person {
 }
 
 impl Person {
-    async fn fetch(db: &PgPool, email: &str) -> Result<Self> {
+    async fn fetch(db: &PgPool, email: &str) -> Result<Self, AppError> {
         sqlx::query_as!(
             Self,
             "SELECT email, real_name, pix_key, password
@@ -27,7 +26,7 @@ impl Person {
         .await
         .map_err(Into::into)
     }
-    async fn insert(&self, db: &PgPool) -> Result<()> {
+    async fn insert(&self, db: &PgPool) -> Result<(), AppError> {
         sqlx::query!(
             "INSERT INTO person
             (email, real_name, pix_key, password)
@@ -43,7 +42,7 @@ impl Person {
         .map(|_| ())
         .map_err(Into::into)
     }
-    async fn _update(&self, db: &PgPool) -> Result<()> {
+    async fn _update(&self, db: &PgPool) -> Result<(), AppError> {
         sqlx::query!(
             "UPDATE person SET
             email = $1,
@@ -60,7 +59,7 @@ impl Person {
         .map(|_| ())
         .map_err(Into::into)
     }
-    pub async fn get(db: &PgPool, email: &str) -> Result<Self> {
+    pub async fn get(db: &PgPool, email: &str) -> Result<Self, AppError> {
         Self::fetch(db, email).await
     }
     pub async fn register(
@@ -68,7 +67,7 @@ impl Person {
         email: String,
         password: String,
         real_name: String,
-    ) -> Result<Self> {
+    ) -> Result<Self, AppError> {
         let password = hash_password(&password)?;
         let person = Self {
             email,
@@ -79,12 +78,12 @@ impl Person {
         person.insert(db).await?;
         Ok(person)
     }
-    pub async fn login(db: &PgPool, email: String, password: String) -> Result<Session> {
+    pub async fn login(db: &PgPool, email: String, password: String) -> Result<Session, AppError> {
         let person = Self::get(db, &email).await?;
         if verify_password(&password, &person.password)? {
             Ok(Session::create(db, &email).await?)
         } else {
-            Err(anyhow::anyhow!("Invalid credentials"))
+            Err(AppError::NotAuthenticated)
         }
     }
 }

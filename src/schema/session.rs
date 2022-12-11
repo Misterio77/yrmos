@@ -1,8 +1,9 @@
-use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{postgres::PgPool, FromRow};
 use uuid::Uuid;
+
+use crate::AppError;
 
 #[derive(Serialize, Deserialize, FromRow)]
 pub struct Session {
@@ -12,7 +13,7 @@ pub struct Session {
 }
 
 impl Session {
-    async fn fetch(db: &PgPool, id: Uuid) -> Result<Self> {
+    async fn fetch(db: &PgPool, id: Uuid) -> Result<Self, AppError> {
         sqlx::query_as!(
             Self,
             "SELECT id, creator, creation
@@ -25,7 +26,7 @@ impl Session {
         .await
         .map_err(Into::into)
     }
-    async fn list(db: &PgPool, creator: &str) -> Result<Vec<Self>> {
+    async fn list(db: &PgPool, creator: &str) -> Result<Vec<Self>, AppError> {
         sqlx::query_as!(
             Self,
             "SELECT id, creator, creation
@@ -37,7 +38,7 @@ impl Session {
         .await
         .map_err(Into::into)
     }
-    async fn delete(db: &PgPool, creator: &str, session_id: Option<Uuid>) -> Result<()> {
+    async fn delete(db: &PgPool, creator: &str, session_id: Option<Uuid>) -> Result<(), AppError> {
         sqlx::query!(
             "DELETE FROM session
             WHERE creator = $1 AND ($2::uuid IS NULL OR id = $2)
@@ -50,7 +51,7 @@ impl Session {
         .map_err(Into::into)
         .map(|_| ())
     }
-    async fn insert(&self, db: &PgPool) -> Result<()> {
+    async fn insert(&self, db: &PgPool) -> Result<(), AppError> {
         sqlx::query!(
             "INSERT INTO session
             (id, creator, creation)
@@ -70,7 +71,7 @@ impl Session {
     // Essas modelam as lógicas de negócio (por exemplo: precisa estar autenticado para revogar
     // outras autenticações)
 
-    pub async fn create(db: &PgPool, creator: &str) -> Result<Self> {
+    pub async fn create(db: &PgPool, creator: &str) -> Result<Self, AppError> {
         let session = Self {
             id: Uuid::new_v4(),
             creation: Utc::now(),
@@ -79,19 +80,19 @@ impl Session {
         session.insert(db).await?;
         Ok(session)
     }
-    pub async fn authenticate(db: &PgPool, session_id: Uuid) -> Result<Self> {
+    pub async fn authenticate(db: &PgPool, session_id: Uuid) -> Result<Self, AppError> {
         Self::fetch(db, session_id).await
     }
-    pub async fn show_all(&self, db: &PgPool) -> Result<Vec<Self>> {
+    pub async fn show_all(&self, db: &PgPool) -> Result<Vec<Self>, AppError> {
         Self::list(db, &self.creator).await
     }
-    pub async fn revoke(&self, db: &PgPool, session_id: Option<Uuid>) -> Result<()> {
+    pub async fn revoke(&self, db: &PgPool, session_id: Option<Uuid>) -> Result<(), AppError> {
         Self::delete(db, &self.creator, session_id).await
     }
-    pub async fn revoke_self(self, db: &PgPool) -> Result<()> {
+    pub async fn revoke_self(self, db: &PgPool) -> Result<(), AppError> {
         self.revoke(db, Some(self.id)).await
     }
-    pub async fn revoke_all(self, db: &PgPool) -> Result<()> {
+    pub async fn revoke_all(self, db: &PgPool) -> Result<(), AppError> {
         self.revoke(db, None).await
     }
 }
@@ -103,7 +104,7 @@ impl FromRequestParts<AppState> for Session {
     async fn from_request_parts(
         parts: &mut Parts,
         state: &AppState,
-    ) -> Result<Self, Self::Rejection> {
+    ) -> Result<Self, Self::Rejection, AppError> {
         let State(app_state) = State::<AppState>::from_request_parts(parts, state)
             .await
             .map_err(|e| e.into_response())?;

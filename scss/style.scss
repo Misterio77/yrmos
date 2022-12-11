@@ -1,5 +1,4 @@
-// Import full Pico source code
-@import "pico/pico";
+@import "pico/scss/pico.scss";
 
 :root {
   --primary: #fb8c00 !important;
@@ -7,11 +6,6 @@
   --primary-focus: rgba(253, 216, 53, 0.125) !important;
   --primary-inverse: rgba(0, 0, 0, 0.75) !important;
   min-width: 320px;
-}
-
-// Set selection color
-::selection {
-  background: var(--primary-hover);
 }
 
 code {
@@ -64,7 +58,7 @@ body > div {
     .logo {
       margin: 0.3em;
     }
-    form {
+    &.search form {
       flex: auto;
       display: flex;
       align-items: baseline;
@@ -87,27 +81,5 @@ body > div {
   span {
     text-align: center;
     vertical-align: center;
-  }
-}
-
-#flash {
-  text-align: center;
-  padding-bottom: 3rem;
-  sup {
-    background-color: var(--primary);
-    color: var(--primary-inverse);
-    font-weight: bold;
-    border-radius: 0.2rem;
-    margin: 0.2rem;
-    padding: 0.4rem 0.5rem;
-  }
-  &.success sup {
-    background-color: var(--success-color);
-  }
-  &.error sup {
-    background-color: var(--error-color);
-  }
-  &.warning sup {
-    background-color: var(--warn-color);
   }
 }

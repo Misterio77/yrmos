@@ -13,7 +13,8 @@ edition = "2018"
 version = "0.6"
 
 [dependencies.maud]
-version = "0.24"
+git = "https://github.com/davidpdrsn/maud"
+branch = "axum-core-0.3.0"
 features = [ "axum" ]
 
 [dependencies.sqlx]
@@ -47,7 +48,10 @@ features = [ "derive", "env" ]
 version = "0.8"
 features = [ "signed" ]
 
-[dependencies.anyhow]
+[dependencies.hyper]
+version = "0.14"
+
+[dependencies.thiserror]
 version = "1.0"
 
 [dependencies.simple_logger]
@@ -69,3 +73,4 @@ version = "1.0"
 [build-dependencies.grass]
 version = "0.11"
 default-features = false
+features = [ "rand" ]
