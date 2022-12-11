@@ -5,10 +5,10 @@ fn main() {
 
     let options = grass::Options::default();
     let compiled_css =
-        grass::from_path("scss/style.scss", &options).expect("Couldn't compile sass");
+        grass::from_path("assets/scss/style.scss", &options).expect("Couldn't compile sass");
     let dest_file = Path::new(&out).join("style.css");
     fs::write(dest_file, compiled_css).expect("Couldn't write compiled css");
 
-    println!("cargo:rerun-if-changed=scss");
+    println!("cargo:rerun-if-changed=assets/scss");
     println!("cargo:rerun-if-changed=build.rs");
 }
