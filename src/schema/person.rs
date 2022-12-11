@@ -1,66 +1,104 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use sqlx::{postgres::PgPool, FromRow};
-use uuid::Uuid;
 
-#[derive(Serialize, Deserialize, FromRow)]
+use crate::schema::session::Session;
+
+#[derive(Serialize, Deserialize, FromRow, Default)]
 pub struct Person {
-    pub id: Uuid,
+    pub email: String,
     pub real_name: String,
     pub pix_key: Option<String>,
-    #[serde(skip_serializing)]
-    email: String,
     #[serde(skip_serializing)]
     password: String,
 }
 
 impl Person {
-    async fn fetch(db: &PgPool, id: Uuid) -> Result<Person> {
-        let person = sqlx::query_as!(
-            Person,
-            "SELECT id, real_name, pix_key, email, password
+    async fn fetch(db: &PgPool, email: &str) -> Result<Self> {
+        sqlx::query_as!(
+            Self,
+            "SELECT email, real_name, pix_key, password
             FROM person
-            WHERE id = $1
+            WHERE email = $1
             ",
-            id
+            email
         )
         .fetch_one(db)
-        .await?;
-        Ok(person)
+        .await
+        .map_err(Into::into)
     }
     async fn insert(&self, db: &PgPool) -> Result<()> {
-        let _ = sqlx::query!(
+        sqlx::query!(
             "INSERT INTO person
-            (id, real_name, pix_key, email, password)
-            VALUES ($1, $2, $3, $4, $5)
+            (email, real_name, pix_key, password)
+            VALUES ($1, $2, $3, $4)
             ",
-            self.id,
+            self.email,
             self.real_name,
             self.pix_key,
-            self.email,
             self.password
         )
         .execute(db)
-        .await?;
-        Ok(())
+        .await
+        .map(|_| ())
+        .map_err(Into::into)
     }
-    async fn update(&self, db: &PgPool) -> Result<()> {
-        let _ = sqlx::query!(
+    async fn _update(&self, db: &PgPool) -> Result<()> {
+        sqlx::query!(
             "UPDATE person SET
-            id = $1,
+            email = $1,
             real_name = $2,
             pix_key = $3,
-            email = $4,
-            password = $5",
-            self.id,
+            password = $4",
+            self.email,
             self.real_name,
             self.pix_key,
-            self.email,
             self.password
-
         )
         .execute(db)
-        .await?;
-        Ok(())
+        .await
+        .map(|_| ())
+        .map_err(Into::into)
     }
+    pub async fn get(db: &PgPool, email: &str) -> Result<Self> {
+        Self::fetch(db, email).await
+    }
+    pub async fn register(
+        db: &PgPool,
+        email: String,
+        password: String,
+        real_name: String,
+    ) -> Result<Self> {
+        let password = hash_password(&password)?;
+        let person = Self {
+            email,
+            password,
+            real_name,
+            ..Default::default()
+        };
+        person.insert(db).await?;
+        Ok(person)
+    }
+    pub async fn login(db: &PgPool, email: String, password: String) -> Result<Session> {
+        let person = Self::get(db, &email).await?;
+        if verify_password(&password, &person.password)? {
+            Ok(Session::create(db, &email).await?)
+        } else {
+            Err(anyhow::anyhow!("Invalid credentials"))
+        }
+    }
+}
+
+fn hash_password(password: &str) -> Result<String, argon2::Error> {
+    use argon2::Config;
+    use rand::Rng;
+
+    let salt: [u8; 32] = rand::thread_rng().gen();
+    let config = Config::default();
+
+    argon2::hash_encoded(password.as_bytes(), &salt, &config)
+}
+
+fn verify_password(password: &str, hash: &str) -> Result<bool, argon2::Error> {
+    argon2::verify_encoded(hash, password.as_bytes())
 }
