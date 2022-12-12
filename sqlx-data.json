@@ -88,63 +88,6 @@
     },
     "query": "SELECT id, driver, seats, departure, start_location, end_location, cost\n            FROM ride\n            WHERE id = $1\n            "
   },
-  "47ebf3f6070cd6b373ae2bb4473beca5c56fce721d744896568bd28325ddfdf4": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "driver",
-          "ordinal": 1,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "seats",
-          "ordinal": 2,
-          "type_info": "Int4"
-        },
-        {
-          "name": "departure",
-          "ordinal": 3,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "start_location",
-          "ordinal": 4,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "end_location",
-          "ordinal": 5,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "cost",
-          "ordinal": 6,
-          "type_info": "Numeric"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "parameters": {
-        "Left": [
-          "Text",
-          "Bool"
-        ]
-      }
-    },
-    "query": "SELECT id, driver, seats, departure, start_location, end_location, cost\n            FROM ride\n            WHERE driver = $1 AND (NOT $2 OR departure > NOW())"
-  },
   "4fc32fec71a0b8c1aace401f1a02cf7787e6b7b4164e71a9ddebb40af22b6842": {
     "describe": {
       "columns": [],
@@ -257,6 +200,63 @@
       }
     },
     "query": "UPDATE person SET\n            email = $1,\n            real_name = $2,\n            pix_key = $3,\n            password = $4"
+  },
+  "b1a121e3e23de141a61de01aa3094eddc60410637f03efee0ea5551db8e6c7af": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "driver",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "seats",
+          "ordinal": 2,
+          "type_info": "Int4"
+        },
+        {
+          "name": "departure",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "start_location",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "end_location",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "cost",
+          "ordinal": 6,
+          "type_info": "Numeric"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Bool"
+        ]
+      }
+    },
+    "query": "SELECT id, driver, seats, departure, start_location, end_location, cost\n            FROM ride\n            WHERE ($1::varchar IS NULL OR driver = $1) AND (NOT $2 OR departure > NOW())"
   },
   "d709b22d732d9dcafed6c5b8eaf96ad1efffc907fd1f5daedb09f2fd35d76d03": {
     "describe": {
