@@ -96,7 +96,7 @@ impl Person {
         Ok(person)
     }
     pub async fn login(db: &PgPool, email: &str, password: &str) -> Result<Session, AppError> {
-        let person = Self::get(db, email).await?;
+        let person = Self::get(db, email).await.or(Err(AppError::InvalidCredentials))?;
         if verify_password(&password, &person.password)? {
             Ok(Session::create(db, email).await?)
         } else {

@@ -13,6 +13,8 @@ pub enum AppError {
     NotAuthenticated,
     #[error("Sua sessão expirou, faça login novamente")]
     InvalidSession,
+    #[error("Credenciais inválidas, tente novamente")]
+    InvalidCredentials,
     #[error("Página ou recuso não encontrado")]
     NotFound,
     #[error("Erro na base de dados")]
@@ -28,8 +30,10 @@ pub enum AppError {
 impl From<&AppError> for StatusCode {
     fn from(e: &AppError) -> StatusCode {
         match e {
-            AppError::NotFound => StatusCode::NOT_FOUND,
             AppError::NotAuthenticated => StatusCode::UNAUTHORIZED,
+            AppError::InvalidSession => StatusCode::UNAUTHORIZED,
+            AppError::InvalidCredentials => StatusCode::UNAUTHORIZED,
+            AppError::NotFound => StatusCode::NOT_FOUND,
             AppError::Database(e) => match e {
                 sqlx::Error::RowNotFound => StatusCode::NOT_FOUND,
                 _ => StatusCode::INTERNAL_SERVER_ERROR,
@@ -75,7 +79,7 @@ impl IntoResponse for AppError {
                         }
                     }
                 };
-                let body = layouts::default(main, None);
+                let body = layouts::root(main, None, false);
                 (status, body).into_response()
             }
         }

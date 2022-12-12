@@ -1,11 +1,15 @@
 use maud::{html, Markup, DOCTYPE};
 
 use crate::{
-    icons::{FILTER_LIST, LOGIN, LOGOUT, YRMOS_LOGO},
+    icons::{ACCOUNT_CIRCLE, FILTER_LIST, LOGIN, YRMOS_LOGO},
     schema::Session,
 };
 
 pub fn default(content: Markup, session: Option<&Session>) -> Markup {
+    root(content, session, true)
+}
+
+pub fn root(content: Markup, session: Option<&Session>, show_session: bool) -> Markup {
     html! {
         (DOCTYPE)
         html lang="pt-br" {
@@ -16,7 +20,7 @@ pub fn default(content: Markup, session: Option<&Session>) -> Markup {
                 link rel="stylesheet" href="/assets/style.css";
             }
             body {
-                (navbar(session))
+                (navbar(session, show_session))
                 main .container { (content) }
                 (footer())
             }
@@ -24,27 +28,31 @@ pub fn default(content: Markup, session: Option<&Session>) -> Markup {
     }
 }
 
-pub fn navbar(session: Option<&Session>) -> Markup {
+pub fn navbar(session: Option<&Session>, show_session: bool) -> Markup {
     html! {
         #navbar {
             nav .container-fluid.main {
-              menu {}
-              a .logo href="/" { (YRMOS_LOGO) "Yrmos" }
-              @if let Some(sess) = session {
-                  a href={"/profiles/" (sess.creator)} {
-                      "Perfil " (LOGOUT)
-                  }
-              } @else {
-                  a href="/login" {
-                      "Login " (LOGIN)
-                  }
-              }
+                menu {}
+                a .logo href="/" { (YRMOS_LOGO) "Yrmos" }
+                @if show_session {
+                    @if let Some(sess) = session {
+                        a href={"/profiles/" (sess.creator)} {
+                            "Perfil " (ACCOUNT_CIRCLE)
+                        }
+                    } @else {
+                        a href="/login" {
+                            "Login " (LOGIN)
+                        }
+                    }
+                } @else {
+                    menu {}
+                }
             }
             nav .container-fluid.search {
-              form action="/rides" {
-                input type="search" placeholder="Destino, origem...";
-                a { "Filtros" (FILTER_LIST) }
-              }
+                form action="/rides" {
+                    input type="search" placeholder="Destino, origem...";
+                    a { "Filtros" (FILTER_LIST) }
+                }
             }
         }
     }
