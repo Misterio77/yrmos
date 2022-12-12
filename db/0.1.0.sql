@@ -34,7 +34,6 @@ CREATE TABLE ride (
 CREATE TABLE rider (
     ride uuid NOT NULL,
     person varchar NOT NULL,
-    review boolean,
 
     CONSTRAINT rider_pk PRIMARY KEY (ride, person),
     CONSTRAINT rider_person_fk FOREIGN KEY (person)

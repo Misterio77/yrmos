@@ -19,7 +19,7 @@ pub struct Session {
 }
 
 impl Session {
-    async fn fetch(db: &PgPool, id: Uuid) -> Result<Self, AppError> {
+    pub(super) async fn fetch(db: &PgPool, id: Uuid) -> Result<Self, AppError> {
         sqlx::query_as!(
             Self,
             "SELECT id, creator, creation
@@ -32,7 +32,7 @@ impl Session {
         .await
         .map_err(Into::into)
     }
-    async fn list(db: &PgPool, creator: &str) -> Result<Vec<Self>, AppError> {
+    pub(super) async fn list(db: &PgPool, creator: &str) -> Result<Vec<Self>, AppError> {
         sqlx::query_as!(
             Self,
             "SELECT id, creator, creation
@@ -44,7 +44,7 @@ impl Session {
         .await
         .map_err(Into::into)
     }
-    async fn delete(db: &PgPool, creator: &str, session_id: Option<Uuid>) -> Result<(), AppError> {
+    pub(super) async fn delete(db: &PgPool, creator: &str, session_id: Option<Uuid>) -> Result<(), AppError> {
         sqlx::query!(
             "DELETE FROM session
             WHERE creator = $1 AND ($2::uuid IS NULL OR id = $2)
@@ -57,7 +57,7 @@ impl Session {
         .map_err(Into::into)
         .map(|_| ())
     }
-    async fn insert(&self, db: &PgPool) -> Result<(), AppError> {
+    pub(super) async fn insert(&self, db: &PgPool) -> Result<(), AppError> {
         sqlx::query!(
             "INSERT INTO session
             (id, creator, creation)

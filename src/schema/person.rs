@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use sqlx::{postgres::PgPool, FromRow};
+use uuid::Uuid;
 
 use crate::{schema::Session, AppError};
 
@@ -13,7 +14,7 @@ pub struct Person {
 }
 
 impl Person {
-    async fn fetch(db: &PgPool, email: &str) -> Result<Self, AppError> {
+    pub(super) async fn fetch(db: &PgPool, email: &str) -> Result<Self, AppError> {
         sqlx::query_as!(
             Self,
             "SELECT email, real_name, pix_key, password
@@ -26,7 +27,21 @@ impl Person {
         .await
         .map_err(Into::into)
     }
-    async fn insert(&self, db: &PgPool) -> Result<(), AppError> {
+    pub(super) async fn list(db: &PgPool, ride_id: Option<Uuid>) -> Result<Vec<Self>, AppError> {
+        sqlx::query_as!(
+            Self,
+            "SELECT email, real_name, pix_key, password
+            FROM person
+            INNER JOIN rider ON rider.person = person.email
+            WHERE ($1::uuid IS NULL OR rider.ride = $1)
+            ",
+            ride_id
+        )
+        .fetch_all(db)
+        .await
+        .map_err(Into::into)
+    }
+    pub(super) async fn insert(&self, db: &PgPool) -> Result<(), AppError> {
         sqlx::query!(
             "INSERT INTO person
             (email, real_name, pix_key, password)
@@ -42,7 +57,7 @@ impl Person {
         .map(|_| ())
         .map_err(Into::into)
     }
-    async fn _update(&self, db: &PgPool) -> Result<(), AppError> {
+    pub(super) async fn _update(&self, db: &PgPool) -> Result<(), AppError> {
         sqlx::query!(
             "UPDATE person SET
             email = $1,
@@ -59,9 +74,11 @@ impl Person {
         .map(|_| ())
         .map_err(Into::into)
     }
+
     pub async fn get(db: &PgPool, email: &str) -> Result<Self, AppError> {
         Self::fetch(db, email).await
     }
+
     pub async fn register(
         db: &PgPool,
         email: &str,
