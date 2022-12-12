@@ -1,7 +1,7 @@
 use maud::{html, Markup, DOCTYPE};
 
 use crate::{
-    icons::{ACCOUNT_CIRCLE, FILTER_LIST, LOGIN, YRMOS_LOGO},
+    icons::{ACCOUNT_CIRCLE, FILTER_LIST, LOGIN, YRMOS_LOGO, LOGOUT},
     schema::Session,
 };
 
@@ -29,23 +29,28 @@ pub fn root(content: Markup, session: Option<&Session>, show_session: bool) -> M
 }
 
 pub fn navbar(session: Option<&Session>, show_session: bool) -> Markup {
+    let logo = html!{a .logo href="/" { (YRMOS_LOGO) "Yrmos" }};
     html! {
         #navbar {
             nav .container-fluid.main {
-                menu {}
-                a .logo href="/" { (YRMOS_LOGO) "Yrmos" }
                 @if show_session {
                     @if let Some(sess) = session {
                         a href={"/profiles/" (sess.creator)} {
                             "Perfil " (ACCOUNT_CIRCLE)
                         }
+                        (logo)
+                        a href="/logout" {
+                            "Logout " (LOGOUT)
+                        }
                     } @else {
+                        span {}
+                        (logo)
                         a href="/login" {
                             "Login " (LOGIN)
                         }
                     }
                 } @else {
-                    menu {}
+                    (logo)
                 }
             }
             nav .container-fluid.search {
@@ -64,6 +69,16 @@ pub fn footer() -> Markup {
             "Desenvolvido para a disciplina de empreendedorismo no "
             a href="https://icmc.usp.br" { "ICMC-USP" }
             " (" a href="https://github.com/misterio77/yrmos" { "Código fonte" } ")"
+        }
+    }
+}
+
+pub fn flash(message: &str, severity: &str) -> Markup {
+    html! {
+        #flash .(severity) {
+            sup onclick="document.getElementById('flash').remove()" {
+                (message)
+            }
         }
     }
 }

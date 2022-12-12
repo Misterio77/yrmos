@@ -18,7 +18,7 @@ pub struct Ride {
 }
 
 impl Ride {
-    pub(super) async fn _fetch(db: &PgPool, id: Uuid) -> Result<Self, AppError> {
+    pub async fn _fetch(db: &PgPool, id: Uuid) -> Result<Self, AppError> {
         sqlx::query_as!(
             Self,
             "SELECT id, driver, seats, departure, start_location, end_location, cost
@@ -31,7 +31,7 @@ impl Ride {
         .await
         .map_err(Into::into)
     }
-    pub(super) async fn _list(
+    pub async fn _list(
         db: &PgPool,
         driver: &str,
         future_only: bool,
@@ -48,7 +48,7 @@ impl Ride {
         .await
         .map_err(Into::into)
     }
-    pub(super) async fn insert(&self, db: &PgPool) -> Result<(), AppError> {
+    pub async fn insert(&self, db: &PgPool) -> Result<(), AppError> {
         sqlx::query!(
             "INSERT INTO ride
             (id, driver, seats, departure, start_location, end_location, cost)
@@ -93,6 +93,6 @@ impl Ride {
         Person::get(db, &self.driver).await
     }
     pub async fn get_riders(&self, db: &PgPool) -> Result<Vec<Person>, AppError> {
-        Person::list(db, Some(self.id)).await
+        Person::list_riders(db, self.id).await
     }
 }

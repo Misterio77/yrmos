@@ -1,4 +1,9 @@
-use axum::{extract::State, response::Redirect, routing::get, Form, Router};
+use axum::{
+    extract::{Query, State},
+    response::Redirect,
+    routing::get,
+    Form, Router,
+};
 use axum_extra::extract::SignedCookieJar;
 use maud::{html, Markup};
 use serde::Deserialize;
@@ -7,7 +12,6 @@ use crate::{
     layouts,
     schema::{Person, Session},
     state::AppState,
-    AppError,
 };
 
 #[derive(Deserialize)]
@@ -16,7 +20,15 @@ struct LoginForm {
     password: String,
 }
 
-async fn login_screen(session: Option<Session>) -> Result<Markup, Redirect> {
+#[derive(Deserialize)]
+struct LoginScreenQuery {
+    error: Option<String>,
+}
+
+async fn login_screen(
+    session: Option<Session>,
+    query: Query<LoginScreenQuery>,
+) -> Result<Markup, Redirect> {
     if session.is_some() {
         return Err(Redirect::to("/"));
     }
@@ -31,6 +43,9 @@ async fn login_screen(session: Option<Session>) -> Result<Markup, Redirect> {
                         "Não tem uma conta? "
                         a href="/register" { "Registrar" }
                     }
+                }
+                @if let Some(flash_message) = &query.error {
+                    (layouts::flash(flash_message, "error"))
                 }
             }
             form method="post" {
@@ -54,12 +69,14 @@ async fn login_action(
     cookie_jar: SignedCookieJar,
     State(state): State<AppState>,
     Form(form): Form<LoginForm>,
-) -> Result<(SignedCookieJar, Redirect), AppError> {
+) -> Result<(SignedCookieJar, Redirect), Redirect> {
     if session.is_some() {
         return Ok((cookie_jar, Redirect::to("/")));
     }
 
-    let session = Person::login(&state.db_pool, &form.email, &form.password).await?;
+    let session = Person::login(&state.db_pool, &form.email, &form.password)
+        .await
+        .map_err(|e| e.redirect("/login"))?;
     Ok((cookie_jar.add(session.as_cookie()), Redirect::to("/")))
 }
 

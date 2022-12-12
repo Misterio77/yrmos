@@ -96,3 +96,22 @@ section header h1 {
     vertical-align: center;
   }
 }
+
+#flash {
+  text-align: center;
+  padding-bottom: 3rem;
+  sup {
+    background-color: var(--primary);
+    color: var(--contrast-inverse);
+    font-weight: bold;
+    border-radius: 0.2rem;
+    margin: 0.2rem;
+    padding: 0.4rem 0.5rem;
+  }
+  &.success sup {
+    background-color: var(--ins-color);
+  }
+  &.error sup {
+    background-color: var(--del-color);
+  }
+}

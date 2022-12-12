@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use axum::{extract::FromRequestParts, http::request::Parts};
 use axum_extra::extract::{
-    cookie::{Cookie, Key},
+    cookie::{self, Cookie, Key},
     SignedCookieJar,
 };
 use chrono::{DateTime, Utc};
@@ -19,7 +19,7 @@ pub struct Session {
 }
 
 impl Session {
-    pub(super) async fn fetch(db: &PgPool, id: Uuid) -> Result<Self, AppError> {
+    pub async fn fetch(db: &PgPool, id: Uuid) -> Result<Self, AppError> {
         sqlx::query_as!(
             Self,
             "SELECT id, creator, creation
@@ -32,7 +32,7 @@ impl Session {
         .await
         .map_err(Into::into)
     }
-    pub(super) async fn list(db: &PgPool, creator: &str) -> Result<Vec<Self>, AppError> {
+    pub async fn list(db: &PgPool, creator: &str) -> Result<Vec<Self>, AppError> {
         sqlx::query_as!(
             Self,
             "SELECT id, creator, creation
@@ -44,7 +44,11 @@ impl Session {
         .await
         .map_err(Into::into)
     }
-    pub(super) async fn delete(db: &PgPool, creator: &str, session_id: Option<Uuid>) -> Result<(), AppError> {
+    pub async fn delete(
+        db: &PgPool,
+        creator: &str,
+        session_id: Option<Uuid>,
+    ) -> Result<(), AppError> {
         sqlx::query!(
             "DELETE FROM session
             WHERE creator = $1 AND ($2::uuid IS NULL OR id = $2)
@@ -57,7 +61,7 @@ impl Session {
         .map_err(Into::into)
         .map(|_| ())
     }
-    pub(super) async fn insert(&self, db: &PgPool) -> Result<(), AppError> {
+    pub async fn insert(&self, db: &PgPool) -> Result<(), AppError> {
         sqlx::query!(
             "INSERT INTO session
             (id, creator, creation)
@@ -97,15 +101,21 @@ impl Session {
     pub async fn revoke(&self, db: &PgPool, session_id: Option<Uuid>) -> Result<(), AppError> {
         Self::delete(db, &self.creator, session_id).await
     }
-    pub async fn revoke_self(self, db: &PgPool) -> Result<(), AppError> {
+    pub async fn revoke_self(&self, db: &PgPool) -> Result<(), AppError> {
         self.revoke(db, Some(self.id)).await
     }
-    pub async fn revoke_all(self, db: &PgPool) -> Result<(), AppError> {
+    pub async fn revoke_all(&self, db: &PgPool) -> Result<(), AppError> {
         self.revoke(db, None).await
     }
     pub fn as_cookie(&self) -> Cookie<'static> {
         let session_id = self.id.as_simple().to_string();
-        Cookie::new("session", session_id).into_owned()
+        Cookie::build("session", session_id)
+            .secure(true)
+            .http_only(true)
+            .same_site(cookie::SameSite::Strict)
+            .permanent()
+            .finish()
+            .into_owned()
     }
 }
 

@@ -2,7 +2,7 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Redirect, Response},
 };
-use maud::html;
+use maud::{html, Markup};
 use thiserror::Error;
 
 use crate::layouts;
@@ -25,6 +25,43 @@ pub enum AppError {
     Logging(#[from] log::SetLoggerError),
     #[error("Erro no servidor http")]
     Http(#[from] hyper::Error),
+}
+
+impl AppError {
+    pub fn redirect(&self, uri: &str) -> Redirect {
+        Redirect::to(&format!("{uri}?error={self}"))
+    }
+    pub fn as_html(&self) -> Markup {
+        let status = StatusCode::from(self);
+        html! {
+            article {
+                header {
+                    hgroup {
+                        h1 {
+                            (status.as_str())
+                            " "
+                            (status.canonical_reason().unwrap_or_default())
+                        }
+                        h2 {
+                            (self.to_string())
+                        }
+                    }
+                }
+                p {
+                    "Tente "
+                    a onclick="history.go(-1)" { "voltar" }
+                    " ou "
+                    a href="/" { "ir para a home" }
+                    "."
+                }
+                hr;
+                details {
+                    summary { "Detalhes do erro:" }
+                    pre { code { (format!("{:?}", self)) } }
+                }
+            }
+        }
+    }
 }
 
 impl From<&AppError> for StatusCode {
@@ -51,35 +88,7 @@ impl IntoResponse for AppError {
             }
             _ => {
                 let status = StatusCode::from(&self);
-                let main = html! {
-                    article {
-                        header {
-                            hgroup {
-                                h1 {
-                                    (status.as_str())
-                                    " "
-                                    (status.canonical_reason().unwrap_or_default())
-                                }
-                                h2 {
-                                    (self.to_string())
-                                }
-                            }
-                        }
-                        p {
-                            "Tente "
-                            a onclick="history.go(-1)" { "voltar" }
-                            " ou "
-                            a href="/" { "ir para a home" }
-                            "."
-                        }
-                        hr;
-                        details {
-                            summary { "Detalhes do erro:" }
-                            pre { code { (format!("{:?}", self)) } }
-                        }
-                    }
-                };
-                let body = layouts::root(main, None, false);
+                let body = layouts::root(self.as_html(), None, false);
                 (status, body).into_response()
             }
         }

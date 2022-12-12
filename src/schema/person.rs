@@ -14,7 +14,7 @@ pub struct Person {
 }
 
 impl Person {
-    pub(super) async fn fetch(db: &PgPool, email: &str) -> Result<Self, AppError> {
+    pub async fn fetch(db: &PgPool, email: &str) -> Result<Self, AppError> {
         sqlx::query_as!(
             Self,
             "SELECT email, real_name, pix_key, password
@@ -27,7 +27,7 @@ impl Person {
         .await
         .map_err(Into::into)
     }
-    pub(super) async fn list(db: &PgPool, ride_id: Option<Uuid>) -> Result<Vec<Self>, AppError> {
+    pub async fn list(db: &PgPool, ride_id: Option<Uuid>) -> Result<Vec<Self>, AppError> {
         sqlx::query_as!(
             Self,
             "SELECT email, real_name, pix_key, password
@@ -41,7 +41,7 @@ impl Person {
         .await
         .map_err(Into::into)
     }
-    pub(super) async fn insert(&self, db: &PgPool) -> Result<(), AppError> {
+    pub async fn insert(&self, db: &PgPool) -> Result<(), AppError> {
         sqlx::query!(
             "INSERT INTO person
             (email, real_name, pix_key, password)
@@ -57,7 +57,7 @@ impl Person {
         .map(|_| ())
         .map_err(Into::into)
     }
-    pub(super) async fn _update(&self, db: &PgPool) -> Result<(), AppError> {
+    pub async fn _update(&self, db: &PgPool) -> Result<(), AppError> {
         sqlx::query!(
             "UPDATE person SET
             email = $1,
@@ -75,6 +75,9 @@ impl Person {
         .map_err(Into::into)
     }
 
+    pub async fn list_riders(db: &PgPool, ride_id: Uuid) -> Result<Vec<Self>, AppError> {
+        Self::list(db, Some(ride_id)).await
+    }
     pub async fn get(db: &PgPool, email: &str) -> Result<Self, AppError> {
         Self::fetch(db, email).await
     }
@@ -100,7 +103,7 @@ impl Person {
         if verify_password(&password, &person.password)? {
             Ok(Session::create(db, email).await?)
         } else {
-            Err(AppError::NotAuthenticated)
+            Err(AppError::InvalidCredentials)
         }
     }
 }

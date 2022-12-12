@@ -1,4 +1,9 @@
-use axum::{extract::State, response::Redirect, routing::get, Form, Router};
+use axum::{
+    extract::{Query, State},
+    response::Redirect,
+    routing::get,
+    Form, Router,
+};
 use axum_extra::extract::SignedCookieJar;
 use maud::{html, Markup};
 use serde::Deserialize;
@@ -7,7 +12,6 @@ use crate::{
     layouts,
     schema::{Person, Session},
     state::AppState,
-    AppError,
 };
 
 #[derive(Deserialize)]
@@ -17,7 +21,15 @@ struct RegisterForm {
     password: String,
 }
 
-async fn register_screen(session: Option<Session>) -> Result<Markup, Redirect> {
+#[derive(Deserialize)]
+struct RegisterScreenQuery {
+    error: Option<String>,
+}
+
+async fn register_screen(
+    session: Option<Session>,
+    query: Query<RegisterScreenQuery>,
+) -> Result<Markup, Redirect> {
     if session.is_some() {
         return Err(Redirect::to("/"));
     }
@@ -32,6 +44,9 @@ async fn register_screen(session: Option<Session>) -> Result<Markup, Redirect> {
                         "Já tem uma conta? "
                         a href="/login" { "Login" }
                     }
+                }
+                @if let Some(flash_message) = &query.error {
+                    (layouts::flash(flash_message, "error"))
                 }
             }
             form method="post" {
@@ -59,14 +74,18 @@ async fn register_action(
     cookie_jar: SignedCookieJar,
     State(state): State<AppState>,
     Form(form): Form<RegisterForm>,
-) -> Result<(SignedCookieJar, Redirect), AppError> {
+) -> Result<(SignedCookieJar, Redirect), Redirect> {
     if session.is_some() {
         return Ok((cookie_jar, Redirect::to("/")));
     }
 
-    Person::register(&state.db_pool, &form.email, &form.password, &form.real_name).await?;
+    Person::register(&state.db_pool, &form.email, &form.password, &form.real_name)
+        .await
+        .map_err(|e| e.redirect("/register"))?;
 
-    let session = Person::login(&state.db_pool, &form.email, &form.password).await?;
+    let session = Person::login(&state.db_pool, &form.email, &form.password)
+        .await
+        .map_err(|e| e.redirect("/register"))?;
     Ok((cookie_jar.add(session.as_cookie()), Redirect::to("/")))
 }
 
