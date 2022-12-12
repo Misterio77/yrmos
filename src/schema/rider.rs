@@ -12,7 +12,7 @@ pub struct Rider {
 }
 
 impl Rider {
-    async fn fetch(db: &PgPool, ride: Uuid, person: &str) -> Result<Self, AppError> {
+    async fn _fetch(db: &PgPool, ride: Uuid, person: &str) -> Result<Self, AppError> {
         sqlx::query_as!(
             Self,
             "SELECT ride, person, review
@@ -26,7 +26,7 @@ impl Rider {
         .await
         .map_err(Into::into)
     }
-    async fn list(db: &PgPool, person: &str) -> Result<Vec<Self>, AppError> {
+    async fn _list(db: &PgPool, person: &str) -> Result<Vec<Self>, AppError> {
         sqlx::query_as!(
             Self,
             "SELECT ride, person, review
@@ -38,7 +38,7 @@ impl Rider {
         .await
         .map_err(Into::into)
     }
-    async fn delete(db: &PgPool, ride: Uuid, person: &str) -> Result<(), AppError> {
+    async fn _delete(db: &PgPool, ride: Uuid, person: &str) -> Result<(), AppError> {
         sqlx::query!(
             "DELETE FROM rider
             WHERE ride = $1 AND person = $2
@@ -51,7 +51,7 @@ impl Rider {
         .map_err(Into::into)
         .map(|_| ())
     }
-    async fn insert(&self, db: &PgPool) -> Result<(), AppError> {
+    async fn _insert(&self, db: &PgPool) -> Result<(), AppError> {
         sqlx::query!(
             "INSERT INTO rider
             (ride, person, review)

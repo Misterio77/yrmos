@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use sqlx::{postgres::PgPool, FromRow};
 
-use crate::{AppError, schema::Session};
+use crate::{schema::Session, AppError};
 
 #[derive(Serialize, Deserialize, FromRow, Default)]
 pub struct Person {
@@ -64,24 +64,24 @@ impl Person {
     }
     pub async fn register(
         db: &PgPool,
-        email: String,
-        password: String,
-        real_name: String,
+        email: &str,
+        password: &str,
+        real_name: &str,
     ) -> Result<Self, AppError> {
         let password = hash_password(&password)?;
         let person = Self {
-            email,
+            email: email.into(),
             password,
-            real_name,
+            real_name: real_name.into(),
             ..Default::default()
         };
         person.insert(db).await?;
         Ok(person)
     }
-    pub async fn login(db: &PgPool, email: String, password: String) -> Result<Session, AppError> {
-        let person = Self::get(db, &email).await?;
+    pub async fn login(db: &PgPool, email: &str, password: &str) -> Result<Session, AppError> {
+        let person = Self::get(db, email).await?;
         if verify_password(&password, &person.password)? {
-            Ok(Session::create(db, &email).await?)
+            Ok(Session::create(db, email).await?)
         } else {
             Err(AppError::NotAuthenticated)
         }

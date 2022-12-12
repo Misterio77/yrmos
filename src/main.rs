@@ -1,30 +1,23 @@
-use axum::{routing::get, Router, Server};
+use axum::{Router, Server};
 use clap::Parser;
 
-use maud::{html, Markup};
-use yrmos::{layouts, AppConfig, AppError, StyleSheet};
-
-static STYLE: &str = include_str!(concat!(env!("OUT_DIR"), "/style.css"));
-
-async fn style() -> StyleSheet {
-    StyleSheet(STYLE.into())
-}
-
-async fn root() -> Result<Markup, AppError> {
-    let body: Markup = html! {};
-    // Ok(layouts::default(body))
-    Err(AppError::NotAuthenticated)
-}
+use yrmos::{
+    common::{config::AppConfig, errors::AppError, style},
+    routes::{login, register},
+};
 
 #[tokio::main]
 async fn main() -> Result<(), AppError> {
     let config = AppConfig::parse();
     config.get_logger().init()?;
+    let state = config.to_state().await?;
 
     let app = Router::new()
-        .route("/", get(root))
-        .route("/assets/style.css", get(style))
-        .with_state(config.to_state().await?);
+        .fallback(|| async { AppError::NotFound })
+        .merge(register::router(&state))
+        .merge(login::router(&state))
+        .with_state(state)
+        .merge(style::router());
 
     let addr = config.get_addr();
 

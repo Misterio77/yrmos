@@ -3,9 +3,9 @@ use log::LevelFilter;
 use simple_logger::SimpleLogger;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use std::net::{IpAddr, SocketAddr};
-use tower_cookies::Key;
+use axum_extra::extract::cookie::Key;
 
-use crate::{AppState, AppError};
+use crate::{errors::AppError, state::AppState};
 
 #[derive(Parser, Clone)]
 pub struct AppConfig {

@@ -1,9 +1,15 @@
+use async_trait::async_trait;
+use axum::{extract::FromRequestParts, http::request::Parts};
+use axum_extra::extract::{
+    cookie::{Cookie, Key},
+    SignedCookieJar,
+};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{postgres::PgPool, FromRow};
 use uuid::Uuid;
 
-use crate::AppError;
+use crate::{state::AppState, AppError};
 
 #[derive(Serialize, Deserialize, FromRow)]
 pub struct Session {
@@ -81,7 +87,9 @@ impl Session {
         Ok(session)
     }
     pub async fn authenticate(db: &PgPool, session_id: Uuid) -> Result<Self, AppError> {
-        Self::fetch(db, session_id).await
+        Self::fetch(db, session_id)
+            .await
+            .map_err(|_| AppError::InvalidSession)
     }
     pub async fn show_all(&self, db: &PgPool) -> Result<Vec<Self>, AppError> {
         Self::list(db, &self.creator).await
@@ -95,19 +103,36 @@ impl Session {
     pub async fn revoke_all(self, db: &PgPool) -> Result<(), AppError> {
         self.revoke(db, None).await
     }
+    pub fn as_cookie(&self) -> Cookie<'static> {
+        let session_id = self.id.as_simple().to_string();
+        Cookie::new("session", session_id).into_owned()
+    }
 }
 
-/*
 #[async_trait]
 impl FromRequestParts<AppState> for Session {
-    type Rejection = Response;
+    type Rejection = AppError;
     async fn from_request_parts(
         parts: &mut Parts,
         state: &AppState,
-    ) -> Result<Self, Self::Rejection, AppError> {
-        let State(app_state) = State::<AppState>::from_request_parts(parts, state)
+    ) -> Result<Self, Self::Rejection> {
+        let cookie_jar = SignedCookieJar::<Key>::from_request_parts(parts, state)
             .await
-            .map_err(|e| e.into_response())?;
+            .unwrap(); // It's Infallible
+
+        let session = cookie_jar.get("session").ok_or(AppError::InvalidSession)?;
+        let uuid = Uuid::parse_str(session.value()).or(Err(AppError::InvalidSession))?;
+        Session::authenticate(&state.db_pool, uuid).await
+    }
+}
+
+/*
+impl IntoResponseParts for Session {
+    type Error = std::convert::Infallible;
+    fn into_response_parts(self, res: ResponseParts) -> Result<ResponseParts, Self::Error> {
+        let cookies = SignedCookieJar::<Key>::new(res.extensions());
+        let cookies = cookies.add(self.as_cookie());
+        cookies.into_response_parts(res)
     }
 }
 */

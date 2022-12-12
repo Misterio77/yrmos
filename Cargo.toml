@@ -5,12 +5,17 @@ description = "MVP do sistema Yrmos"
 authors = [ "Gabriel Fontes <hi@m7.rs>"]
 license = "MIT"
 homepage = "https://github.com/Misterio77/Yrmos"
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies.axum]
 version = "0.6"
+features = [ "query" ]
+
+[dependencies.axum-extra]
+version = "0.4"
+features = [ "cookie-signed" ]
 
 [dependencies.maud]
 git = "https://github.com/davidpdrsn/maud"
@@ -43,10 +48,6 @@ features = [ "derive" ]
 [dependencies.clap]
 version = "4.0"
 features = [ "derive", "env" ]
-
-[dependencies.tower-cookies]
-version = "0.8"
-features = [ "signed" ]
 
 [dependencies.hyper]
 version = "0.14"
