@@ -46,7 +46,7 @@ async fn login_screen(session: Option<Session>) -> Result<Markup, Redirect> {
             }
         }
     };
-    Ok(layouts::default(main))
+    Ok(layouts::default(main, None))
 }
 
 async fn login_action(

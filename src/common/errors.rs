@@ -75,7 +75,7 @@ impl IntoResponse for AppError {
                         }
                     }
                 };
-                let body = layouts::default(main);
+                let body = layouts::default(main, None);
                 (status, body).into_response()
             }
         }

@@ -1,6 +1,11 @@
 use maud::{html, Markup, DOCTYPE};
 
-pub fn default(content: Markup) -> Markup {
+use crate::{
+    icons::{FILTER_LIST, LOGIN, LOGOUT, YRMOS_LOGO},
+    schema::Session,
+};
+
+pub fn default(content: Markup, session: Option<&Session>) -> Markup {
     html! {
         (DOCTYPE)
         html lang="pt-br" {
@@ -11,7 +16,7 @@ pub fn default(content: Markup) -> Markup {
                 link rel="stylesheet" href="/assets/style.css";
             }
             body {
-                (navbar())
+                (navbar(session))
                 main .container { (content) }
                 (footer())
             }
@@ -19,18 +24,26 @@ pub fn default(content: Markup) -> Markup {
     }
 }
 
-pub fn navbar() -> Markup {
+pub fn navbar(session: Option<&Session>) -> Markup {
     html! {
         #navbar {
-            nav .container-fluid {
+            nav .container-fluid.main {
               menu {}
-              a .logo href="/" { "Yrmos" }
-              menu {}
+              a .logo href="/" { (YRMOS_LOGO) "Yrmos" }
+              @if let Some(sess) = session {
+                  a href={"/profiles/" (sess.creator)} {
+                      "Perfil " (LOGOUT)
+                  }
+              } @else {
+                  a href="/login" {
+                      "Login " (LOGIN)
+                  }
+              }
             }
             nav .container-fluid.search {
               form action="/rides" {
                 input type="search" placeholder="Destino, origem...";
-                a { "Filtros" }
+                a { "Filtros" (FILTER_LIST) }
               }
             }
         }
