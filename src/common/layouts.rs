@@ -1,7 +1,7 @@
 use maud::{html, Markup, DOCTYPE};
 
 use crate::{
-    icons::{ACCOUNT_CIRCLE, FILTER_LIST, LOGIN, YRMOS_LOGO, LOGOUT},
+    icons::{ACCOUNT_CIRCLE, FILTER_LIST, LOGIN, LOGOUT, YRMOS_LOGO},
     schema::Session,
 };
 
@@ -29,7 +29,7 @@ pub fn root(content: Markup, session: Option<&Session>, show_session: bool) -> M
 }
 
 pub fn navbar(session: Option<&Session>, show_session: bool) -> Markup {
-    let logo = html!{a .logo href="/" { (YRMOS_LOGO) "Yrmos" }};
+    let logo = html! {a .logo href="/" { (YRMOS_LOGO) "Yrmos" }};
     html! {
         #navbar {
             nav .container-fluid.main {
@@ -75,8 +75,21 @@ pub fn footer() -> Markup {
 
 pub fn flash(message: &str, severity: &str) -> Markup {
     html! {
+        script { r###"
+            function clearFlash() {
+                // Apagar 'error' do query parameter
+                var currentQuery = new URLSearchParams(window.location.search);
+                currentQuery.delete('error');
+                let newQuery = currentQuery.toString();
+                let newPath = window.location.pathname + (newQuery ? ('?' + newQuery) : '');
+                history.pushState(null, '', newPath);
+
+                // Apagar elemento #flash
+                document.getElementById('flash').remove();
+            }
+        "### }
         #flash .(severity) {
-            sup onclick="document.getElementById('flash').remove()" {
+            sup onclick="clearFlash()" {
                 (message)
             }
         }

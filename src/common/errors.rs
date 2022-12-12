@@ -84,7 +84,7 @@ impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         match self {
             AppError::NotAuthenticated | AppError::InvalidSession => {
-                (Redirect::to("/login")).into_response()
+                (Redirect::to(&format!("/login?error={self}"))).into_response()
             }
             _ => {
                 let status = StatusCode::from(&self);
