@@ -26,6 +26,7 @@ pkgs.rustPlatform.buildRustPackage rec {
   };
 
   preBuild = ''
+    rm -df assets/scss/pico
     ln ${picocss} -sfT assets/scss/pico
   '';
 
