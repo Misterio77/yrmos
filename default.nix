@@ -21,11 +21,12 @@ pkgs.rustPlatform.buildRustPackage rec {
     lockFile = ./Cargo.lock;
     outputHashes = {
       "maud-0.24.0" = "sha256-q4uLogTGH78GFgQm/tRK2NSo69H6/w6tD4TxUe9dEl4=";
+      "chrono-humanize-0.2.1" = "sha256-9J1uGHjSEmJVAp7KceCc9q8G84VQ7MM5VT3mxiR52oQ=";
     };
   };
 
   preBuild = ''
-    ln ${picocss} -sf scss/pico
+    ln ${picocss} -sf assets/scss/pico
   '';
 
   postInstall = ''

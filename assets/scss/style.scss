@@ -5,6 +5,7 @@
   --primary-hover: #fbc02d !important;
   --primary-focus: rgba(253, 216, 53, 0.125) !important;
   --primary-inverse: rgba(0, 0, 0, 0.75) !important;
+  --block-spacing-vertical: calc(var(--spacing) * 1.8);
   min-width: 320px;
 }
 
@@ -29,22 +30,24 @@ section header h1 {
   justify-content: space-around;
   article {
     flex: auto;
-    max-width: 60em;
   }
+}
+
+.muted {
+  color: var(--muted-color);
 }
 
 .row {
   display: flex;
   justify-content: space-between;
-  min-width: 15em;
-  @media (min-width: 576px) {
-    min-width: 25em;
+  :not(:last-child) {
+    margin-right: 0.4rem;
   }
   h3 {
-    --font-size: 1.4em;
+    --font-size: 1.2em;
   }
   h2 {
-    --font-size: 1.5em;
+    --font-size: 1.4em;
   }
 }
 

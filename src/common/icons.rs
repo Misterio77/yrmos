@@ -7,6 +7,7 @@ macro_rules! include_icon {
 }
 
 include_icon!(ACCOUNT_CIRCLE, "account_circle.svg");
+include_icon!(ARROW_DOWN, "arrow_down.svg");
 include_icon!(DIRECTIONS_CAR, "directions_car.svg");
 include_icon!(FILTER_LIST, "filter_list.svg");
 include_icon!(GRADE, "grade.svg");

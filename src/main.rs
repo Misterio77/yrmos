@@ -5,7 +5,7 @@ use maud::{html, Markup};
 use yrmos::{
     common::{config::AppConfig, errors::AppError, style},
     layouts,
-    routes::{login, register, logout},
+    routes::{login, logout, register, rides},
     schema::Session,
 };
 
@@ -28,6 +28,7 @@ async fn main() -> Result<(), AppError> {
         .merge(register::router(&state))
         .merge(login::router(&state))
         .merge(logout::router(&state))
+        .merge(rides::router(&state))
         .with_state(state)
         .merge(style::router());
 

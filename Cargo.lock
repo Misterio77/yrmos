@@ -292,6 +292,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "chrono-humanize"
+version = "0.2.1"
+source = "git+https://gitlab.com/misterio77/chrono-humanize-rs?branch=develop#01d99deb8d7477624fba6e39e4eda09fd37e62b3"
+dependencies = [
+ "chrono",
+]
+
+[[package]]
 name = "clap"
 version = "4.0.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2075,6 +2083,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39ec24b3121d976906ece63c9daad25b85969647682eee313cb5779fdd69e14e"
 
 [[package]]
+name = "unidecode"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "402bb19d8e03f1d1a7450e2bd613980869438e0666331be3e073089124aa1adc"
+
+[[package]]
 name = "untrusted"
 version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2320,7 +2334,9 @@ dependencies = [
  "axum",
  "axum-extra",
  "chrono",
+ "chrono-humanize",
  "clap",
+ "crc",
  "grass",
  "hyper",
  "log",
@@ -2333,5 +2349,6 @@ dependencies = [
  "sqlx",
  "thiserror",
  "tokio",
+ "unidecode",
  "uuid",
 ]

@@ -3,13 +3,16 @@ use axum::{
     routing::get,
     Router,
 };
-use maud::{html, Markup};
+use chrono::{DateTime, Local, Utc};
+use chrono_humanize::{Humanize, Language};
+use maud::{html, Markup, PreEscaped};
+use tokio::try_join;
 use uuid::Uuid;
 
 use crate::{
-    icons::{ACCOUNT_CIRCLE, DIRECTIONS_CAR, SPORTS_SCORE},
+    icons::{ACCOUNT_CIRCLE, ARROW_DOWN, DIRECTIONS_CAR, SPORTS_SCORE},
     layouts,
-    schema::{Ride, Session},
+    schema::{Person, Ride, Session},
     state::AppState,
     AppError,
 };
@@ -20,25 +23,28 @@ async fn rides_screen(
 ) -> Result<Markup, AppError> {
     let rides = Ride::list_future(&state.db_pool).await?;
     let main = html! {
-        @for ride in rides.iter() {
-            article {
-                header .class {
-                    div {
-                        h3 { (DIRECTIONS_CAR) }
-                        h3 { (SPORTS_SCORE) }
-                    }
-                    h2 { (ride.departure.to_string()) }
-                }
-                a href={"/profiles/"(ride.driver)} {
-                    span {
-                        (ACCOUNT_CIRCLE)
-                        " "
-                        (ride.driver)
-                    }
-                }
-                footer {
-                    a href={"/rides/"(ride.id.to_string())} {
-                        "Ver carona →"
+        section {
+            header { h1 { "Caronas" }}
+            .grid {
+                @for ride in rides.iter() {
+                    @let departure_local: DateTime<Local> = ride.departure.into();
+                    @let departure_pretty = departure_local.format("%H:%M %d/%m (GMT%:::z)").to_string();
+                    @let departure_humanized = (ride.departure - Utc::now()).humanize_in(Language::Portuguese);
+                    @let profile_link = format!("/profiles/{}", ride.driver);
+                    @let ride_link = format!("/rides/{}", ride.id);
+                    article {
+                        header .row {
+                            h3 {
+                                (DIRECTIONS_CAR) " " (ride.start_location)
+                                br;
+                                span .muted { (ARROW_DOWN) }
+                                br;
+                                (SPORTS_SCORE) " " (ride.end_location)
+                            }
+                            h2 { span data-tooltip=(departure_pretty) { (departure_humanized) } }
+                        }
+                        a href=(profile_link) { (ACCOUNT_CIRCLE) " " (ride.driver) }
+                        footer { a role="button" href=(ride_link) { "Ver carona →" } }
                     }
                 }
             }
@@ -47,19 +53,84 @@ async fn rides_screen(
     Ok(layouts::default(main, session.as_ref()))
 }
 
-/*
 async fn ride_screen_by_id(
     session: Option<Session>,
     Path(id): Path<Uuid>,
-    state: &AppState,
+    state: State<AppState>,
 ) -> Result<Markup, AppError> {
-    Ok(html!{})
+    let ride = Ride::get(&state.db_pool, id).await?;
+    let (driver, riders) = try_join!(
+        ride.get_driver(&state.db_pool),
+        ride.get_riders(&state.db_pool)
+    )?;
+    let departure_local: DateTime<Local> = ride.departure.into();
+    let departure_pretty = departure_local.format("%H:%M %d/%m (GMT%:::z)").to_string();
+    let departure_humanized = (ride.departure - Utc::now()).humanize_in(Language::Portuguese);
+
+    let short_uuid = format!("{:x}", ride.id.as_fields().0);
+    let qr_pix = driver.get_pix_qr(ride.cost);
+
+    let main = html! {
+        article {
+            header {
+                h1 {
+                    "Carona: " code { (short_uuid) }
+                }
+                div .row {
+                    h3 {
+                        (DIRECTIONS_CAR) " " (ride.start_location)
+                        br;
+                        span .muted { (ARROW_DOWN) }
+                        br;
+                        (SPORTS_SCORE) " " (ride.end_location)
+                    }
+                    h2 { span data-tooltip=(departure_pretty) { (departure_humanized) } }
+                }
+                @if let Some(cost) = ride.cost {
+                    p { "R$ " (cost.to_string()) }
+                }
+                @let profile_link = format!("/profiles/{}", driver.email);
+                p { a href=(profile_link) { (fmt_person(driver)) } }
+            }
+            h2 { "Passageiros" }
+            ul {
+                @for rider in riders {
+                    @let profile_link = format!("/profiles/{}", rider.email);
+                    li { a href=(profile_link) { (fmt_person(rider)) }}
+                }
+            }
+            footer {
+                h2 { "Pagamento (via Pix)" }
+                @if let Some(qr) = qr_pix {
+                    img width="256" height="256" src={
+                        "https://qrcode.tec-it.com/API/QRCode?data="
+                        (qr)
+                        "&color=222&backcolor=eee&quietzone=2"
+                    };
+                    hr;
+                    code { (qr) }
+                } @else {
+                    p { "O motorista ainda não cadastrou uma chave pix." }
+                }
+            }
+
+        }
+    };
+    // img src=(format!({"https://"}))
+    Ok(layouts::default(main, session.as_ref()))
 }
-*/
+
+// TODO: Mover para Display::fmt de Person
+fn fmt_person(person: Person) -> PreEscaped<String> {
+    PreEscaped(format!(
+        "{} {} ({})",
+        ACCOUNT_CIRCLE.0, person.real_name, person.email
+    ))
+}
 
 pub fn router(state: &AppState) -> Router<AppState> {
     Router::new()
         .route("/rides", get(rides_screen))
-        // .route("/rides/:id", get(ride_screen_by_id))
+        .route("/rides/:id", get(ride_screen_by_id))
         .with_state(state.clone())
 }

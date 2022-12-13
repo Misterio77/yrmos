@@ -18,7 +18,7 @@ pub struct Ride {
 }
 
 impl Ride {
-    async fn _fetch(db: &PgPool, id: Uuid) -> Result<Self, AppError> {
+    async fn fetch(db: &PgPool, id: Uuid) -> Result<Self, AppError> {
         sqlx::query_as!(
             Self,
             "SELECT id, driver, seats, departure, start_location, end_location, cost
@@ -89,9 +89,11 @@ impl Ride {
         Ok(ride)
     }
 
-
-    pub async fn list_future(db: &PgPool) ->Result<Vec<Ride>, AppError> {
+    pub async fn list_future(db: &PgPool) -> Result<Vec<Ride>, AppError> {
         Ride::list(db, None, true).await
+    }
+    pub async fn get(db: &PgPool, id: Uuid) -> Result<Self, AppError> {
+        Ride::fetch(db, id).await
     }
     pub async fn get_driver(&self, db: &PgPool) -> Result<Person, AppError> {
         Person::get(db, &self.driver).await

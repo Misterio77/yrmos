@@ -37,6 +37,10 @@ features = [ "v4", "fast-rng", "serde" ]
 version = "0.4"
 features = [ "serde" ]
 
+[dependencies.chrono-humanize]
+git = "https://gitlab.com/misterio77/chrono-humanize-rs"
+branch = "develop"
+
 [dependencies.tokio]
 version = "1.23"
 features = [ "full" ]
@@ -70,6 +74,12 @@ version = "0.8"
 
 [dependencies.rust-argon2]
 version = "1.0"
+
+[dependencies.crc]
+version = "3.0"
+
+[dependencies.unidecode]
+version = "0.3"
 
 [build-dependencies.grass]
 version = "0.11"
