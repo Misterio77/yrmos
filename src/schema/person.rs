@@ -140,7 +140,6 @@ fn generate_emv_pix(key: &str, name: &str, city: &str, amount: Option<Decimal>) 
 
     fn calculate_crc(content: &str) -> String {
         let content = format!("{}6304", content);
-        log::error!("{}", content);
         const CRC_ALG: crc::Algorithm<u16> = crc::Algorithm {
             width: 16,
             poly: 0x1021,

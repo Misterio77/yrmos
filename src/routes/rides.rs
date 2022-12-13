@@ -90,13 +90,13 @@ async fn ride_screen_by_id(
                     p { "R$ " (cost.to_string()) }
                 }
                 @let profile_link = format!("/profiles/{}", driver.email);
-                p { a href=(profile_link) { (fmt_person(driver)) } }
+                p { a href=(profile_link) { (ACCOUNT_CIRCLE) (format!(" {} ({})", driver.real_name, driver.email)) } }
             }
             h2 { "Passageiros" }
             ul {
                 @for rider in riders {
                     @let profile_link = format!("/profiles/{}", rider.email);
-                    li { a href=(profile_link) { (fmt_person(rider)) }}
+                    li { a href=(profile_link) { (ACCOUNT_CIRCLE) (format!(" {} ({})", rider.real_name, rider.email)) }}
                 }
             }
             footer {
@@ -108,7 +108,7 @@ async fn ride_screen_by_id(
                         "&color=222&backcolor=eee&quietzone=2"
                     };
                     hr;
-                    code { (qr) }
+                    pre { code { (qr) } }
                 } @else {
                     p { "O motorista ainda não cadastrou uma chave pix." }
                 }
@@ -118,14 +118,6 @@ async fn ride_screen_by_id(
     };
     // img src=(format!({"https://"}))
     Ok(layouts::default(main, session.as_ref()))
-}
-
-// TODO: Mover para Display::fmt de Person
-fn fmt_person(person: Person) -> PreEscaped<String> {
-    PreEscaped(format!(
-        "{} {} ({})",
-        ACCOUNT_CIRCLE.0, person.real_name, person.email
-    ))
 }
 
 pub fn router(state: &AppState) -> Router<AppState> {
