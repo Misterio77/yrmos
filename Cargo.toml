@@ -1,6 +1,6 @@
 [package]
 name = "yrmos"
-version = "0.1.0"
+version = "0.1.1"
 description = "MVP do sistema Yrmos"
 authors = [ "Gabriel Fontes <hi@m7.rs>"]
 license = "MIT"

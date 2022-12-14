@@ -17,6 +17,10 @@ impl IntoResponse for StyleSheet {
             header::CONTENT_TYPE,
             HeaderValue::from_static("text/css; charset=utf-8"),
         );
+        headers.insert(
+            header::CACHE_CONTROL,
+            HeaderValue::from_static("max-age=604800"),
+        );
         (headers, self.0).into_response()
     }
 }
@@ -28,5 +32,5 @@ async fn style_route() -> StyleSheet {
 }
 
 pub fn router() -> Router {
-    Router::new().route("/assets/style.css", get(style_route))
+    Router::new().route("/assets/:version/style.css", get(style_route))
 }

@@ -88,22 +88,7 @@
     },
     "query": "SELECT id, driver, seats, departure, start_location, end_location, cost\n            FROM ride\n            WHERE id = $1\n            "
   },
-  "4fc32fec71a0b8c1aace401f1a02cf7787e6b7b4164e71a9ddebb40af22b6842": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Varchar",
-          "Varchar",
-          "Varchar",
-          "Varchar"
-        ]
-      }
-    },
-    "query": "INSERT INTO person\n            (email, real_name, pix_key, password)\n            VALUES ($1, $2, $3, $4)\n            "
-  },
-  "50b221b03d95edacfa5a491b2e5465815254ff68d270efb28c2c38787d9d3704": {
+  "4dacdfb2f09ae74faa71346c1773e10f50fa3c9b94cf1c952b1ce236ac20a53a": {
     "describe": {
       "columns": [
         {
@@ -134,12 +119,25 @@
         false
       ],
       "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT email, real_name, pix_key, password\n            FROM person\n            INNER JOIN rider ON rider.person = person.email\n            "
+  },
+  "4fc32fec71a0b8c1aace401f1a02cf7787e6b7b4164e71a9ddebb40af22b6842": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
         "Left": [
-          "Uuid"
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar"
         ]
       }
     },
-    "query": "SELECT email, real_name, pix_key, password\n            FROM person\n            INNER JOIN rider ON rider.person = person.email\n            WHERE ($1::uuid IS NULL OR rider.ride = $1)\n            "
+    "query": "INSERT INTO person\n            (email, real_name, pix_key, password)\n            VALUES ($1, $2, $3, $4)\n            "
   },
   "527e06d4a2364c18cc9f223d7c202777cfec05412d03ef69031fdf88a1e7c795": {
     "describe": {
@@ -258,6 +256,77 @@
     },
     "query": "SELECT id, driver, seats, departure, start_location, end_location, cost\n            FROM ride\n            WHERE ($1::varchar IS NULL OR driver = $1) AND (NOT $2 OR departure > NOW())"
   },
+  "b3fe778050896b424fae7d5e5b0790895ed051408de9b3f131e857fde5bf429e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "email",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "real_name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "pix_key",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "password",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "SELECT email, real_name, pix_key, password\n            FROM person\n            INNER JOIN rider ON rider.person = person.email\n            WHERE rider.ride = $1\n            "
+  },
+  "bc8c2c2c86760f0c86f4cc5de8bf9d1ed570b62415b160a3024520d2abf6817f": {
+    "describe": {
+      "columns": [
+        {
+          "name": "score",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT score\n            FROM reputation\n            WHERE person = $1"
+  },
+  "c307e0d88ad09e752d8dc372e1b35f09f8f03e288a6557376bd09e105968f666": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Text"
+        ]
+      }
+    },
+    "query": "DELETE FROM rider\n            WHERE\n                ride = $1 AND\n                person = $2\n            "
+  },
   "d709b22d732d9dcafed6c5b8eaf96ad1efffc907fd1f5daedb09f2fd35d76d03": {
     "describe": {
       "columns": [],
@@ -289,6 +358,19 @@
       }
     },
     "query": "INSERT INTO session\n            (id, creator, creation)\n            VALUES ($1, $2, $3)\n            "
+  },
+  "e9bc14e9a79488ae0f66b3b97e564a67caf9e5a68fad8ae9e0384bc87e4710c5": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Varchar"
+        ]
+      }
+    },
+    "query": "INSERT INTO rider\n            (ride, person)\n            VALUES ($1, $2)\n            "
   },
   "f2b3f5202f8960b1ebf0d50f302d135850119df266be1735a207b62af78bcb2a": {
     "describe": {

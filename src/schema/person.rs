@@ -15,7 +15,7 @@ pub struct Person {
 }
 
 impl Person {
-    pub async fn fetch(db: &PgPool, email: &str) -> Result<Self, AppError> {
+    async fn fetch(db: &PgPool, email: &str) -> Result<Self, AppError> {
         sqlx::query_as!(
             Self,
             "SELECT email, real_name, pix_key, password
@@ -28,13 +28,13 @@ impl Person {
         .await
         .map_err(Into::into)
     }
-    pub async fn list(db: &PgPool, ride_id: Option<Uuid>) -> Result<Vec<Self>, AppError> {
+    async fn list_by_ride(db: &PgPool, ride_id: Uuid) -> Result<Vec<Self>, AppError> {
         sqlx::query_as!(
             Self,
             "SELECT email, real_name, pix_key, password
             FROM person
             INNER JOIN rider ON rider.person = person.email
-            WHERE ($1::uuid IS NULL OR rider.ride = $1)
+            WHERE rider.ride = $1
             ",
             ride_id
         )
@@ -42,7 +42,19 @@ impl Person {
         .await
         .map_err(Into::into)
     }
-    pub async fn insert(&self, db: &PgPool) -> Result<(), AppError> {
+    async fn _list(db: &PgPool) -> Result<Vec<Self>, AppError> {
+        sqlx::query_as!(
+            Self,
+            "SELECT email, real_name, pix_key, password
+            FROM person
+            INNER JOIN rider ON rider.person = person.email
+            "
+        )
+        .fetch_all(db)
+        .await
+        .map_err(Into::into)
+    }
+    async fn insert(&self, db: &PgPool) -> Result<(), AppError> {
         sqlx::query!(
             "INSERT INTO person
             (email, real_name, pix_key, password)
@@ -58,7 +70,7 @@ impl Person {
         .map(|_| ())
         .map_err(Into::into)
     }
-    pub async fn _update(&self, db: &PgPool) -> Result<(), AppError> {
+    async fn _update(&self, db: &PgPool) -> Result<(), AppError> {
         sqlx::query!(
             "UPDATE person SET
             email = $1,
@@ -75,14 +87,25 @@ impl Person {
         .map(|_| ())
         .map_err(Into::into)
     }
+    async fn fetch_reputation(&self, db: &PgPool) -> Result<i64, AppError> {
+        sqlx::query!(
+            "SELECT score
+            FROM reputation
+            WHERE person = $1",
+            self.email
+        )
+        .fetch_optional(db)
+        .await
+        .map(|row| row.and_then(|row| row.score).unwrap_or_default())
+        .map_err(Into::into)
+    }
 
     pub async fn list_riders(db: &PgPool, ride_id: Uuid) -> Result<Vec<Self>, AppError> {
-        Self::list(db, Some(ride_id)).await
+        Self::list_by_ride(db, ride_id).await
     }
     pub async fn get(db: &PgPool, email: &str) -> Result<Self, AppError> {
         Self::fetch(db, email).await
     }
-
     pub async fn register(
         db: &PgPool,
         email: &str,
@@ -116,6 +139,9 @@ impl Person {
             "São Carlos",
             amount,
         ))
+    }
+    pub async fn get_reputation(&self, db: &PgPool) -> Result<i64, AppError> {
+        self.fetch_reputation(db).await
     }
 }
 

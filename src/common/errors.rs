@@ -17,6 +17,8 @@ pub enum AppError {
     InvalidCredentials,
     #[error("Página ou recuso não encontrado")]
     NotFound,
+    #[error("Você não pode fazer essa ação")]
+    NotAllowed,
     #[error("Erro na base de dados")]
     Database(#[from] sqlx::Error),
     #[error("Erro ao calcular hash")]
@@ -71,6 +73,7 @@ impl From<&AppError> for StatusCode {
             AppError::InvalidSession => StatusCode::UNAUTHORIZED,
             AppError::InvalidCredentials => StatusCode::UNAUTHORIZED,
             AppError::NotFound => StatusCode::NOT_FOUND,
+            AppError::NotAllowed => StatusCode::FORBIDDEN,
             AppError::Database(e) => match e {
                 sqlx::Error::RowNotFound => StatusCode::NOT_FOUND,
                 _ => StatusCode::INTERNAL_SERVER_ERROR,

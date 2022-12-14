@@ -110,7 +110,9 @@ impl Session {
     pub fn as_cookie(&self) -> Cookie<'static> {
         let session_id = self.id.as_simple().to_string();
         Cookie::build("session", session_id)
-            .secure(true)
+            // Desabilitar "Scure" nos cookies quando estiver em debug
+            // Se não n funciona sem https
+            .secure(cfg!(not(debug_assertions)))
             .http_only(true)
             .same_site(cookie::SameSite::Strict)
             .permanent()

@@ -66,8 +66,37 @@ impl Ride {
         .map_err(Into::into)
         .map(|_| ())
     }
+    pub async fn insert_rider(&self, db: &PgPool, person: &Person) -> Result<(), AppError> {
+        sqlx::query!(
+            "INSERT INTO rider
+            (ride, person)
+            VALUES ($1, $2)
+            ",
+            self.id,
+            person.email
+        )
+        .execute(db)
+        .await
+        .map_err(Into::into)
+        .map(|_| ())
+    }
+    pub async fn delete_rider(&self, db: &PgPool, person: &Person) -> Result<(), AppError> {
+        sqlx::query!(
+            "DELETE FROM rider
+            WHERE
+                ride = $1 AND
+                person = $2
+            ",
+            self.id,
+            person.email
+        )
+        .execute(db)
+        .await
+        .map_err(Into::into)
+        .map(|_| ())
+    }
 
-    async fn create(
+    pub async fn create(
         db: &PgPool,
         driver: &Person,
         seats: i32,
@@ -88,7 +117,6 @@ impl Ride {
         ride.insert(db).await?;
         Ok(ride)
     }
-
     pub async fn list_future(db: &PgPool) -> Result<Vec<Ride>, AppError> {
         Ride::list(db, None, true).await
     }

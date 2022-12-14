@@ -9,6 +9,11 @@
   min-width: 320px;
 }
 
+button.small {
+  display: inline;
+  width: auto;
+}
+
 code {
   max-width: 100%;
 }
@@ -22,6 +27,15 @@ section header h1 {
 }
 .negative {
   color: var(--del-color);
+  button {
+    color: var(--primary-inverse);
+      background-color: var(--form-element-invalid-border-color);
+      border-color: var(--form-element-invalid-border-color);
+    &:hover {
+      background-color: var(--form-element-invalid-active-border-color);
+      border-color: var(--form-element-invalid-active-border-color);
+    }
+  }
 }
 
 .grid {
