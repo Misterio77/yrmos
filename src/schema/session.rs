@@ -132,8 +132,8 @@ impl FromRequestParts<AppState> for Session {
             .await
             .unwrap(); // It's Infallible
 
-        let session = cookie_jar.get("session").ok_or(AppError::InvalidSession)?;
-        let uuid = Uuid::parse_str(session.value()).or(Err(AppError::InvalidSession))?;
+        let session = cookie_jar.get("session").ok_or(AppError::NotAuthenticated)?;
+        let uuid = Uuid::parse_str(session.value()).or(Err(AppError::NotAuthenticated))?;
         Session::authenticate(&state.db_pool, uuid).await
     }
 }
