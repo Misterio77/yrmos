@@ -16,7 +16,7 @@ in
     database = mkOption {
       type = types.nullOr types.str;
       description = "Connection string for database.";
-      default = "postgres:///yrmos?user=yrmos&host=/var/run/postgresql";
+      default = "postgres:///yrmos";
     };
     address = mkOption {
       type = types.str;
@@ -43,6 +43,11 @@ in
       default = "yrmos";
       description = "Service user that will run the daemon.";
     };
+    logLevel = mkOption {
+      type = types.enum [ "debug" "info" "warn" "error" ];
+      default = "warn";
+      description = "Log verbosity.";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -60,6 +65,7 @@ in
         YRMOS_ADDRESS = cfg.address;
         YRMOS_PORT = toString cfg.port;
         YRMOS_DATABASE = cfg.database;
+        YRMOS_LOG_LEVEL = cfg.logLevel;
       };
     };
 

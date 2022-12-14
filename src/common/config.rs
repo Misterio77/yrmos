@@ -15,7 +15,7 @@ pub struct AppConfig {
     pub port: u16,
     #[clap(long, default_value = "postgres:///yrmos", env = "YRMOS_DATABASE")]
     pub database_url: String,
-    #[clap(long, default_value = "info", env = "YRMOS_DATABASE")]
+    #[clap(long, default_value = "info", env = "YRMOS_LOG_LEVEL")]
     pub log_level: LevelFilter,
     #[clap(long, env = "YRMOS_SECRET_KEY")]
     pub secret_key: Option<String>,
