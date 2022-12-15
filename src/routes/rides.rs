@@ -1,12 +1,14 @@
 use axum::{
-    extract::{Path, State},
+    extract::{Path, Query, State},
     response::Redirect,
     routing::{get, post},
-    Router,
+    Form, Router,
 };
-use chrono::{DateTime, Local, Utc};
+use chrono::{DateTime, Local, NaiveDate, NaiveDateTime, NaiveTime, TimeZone, Utc};
 use chrono_humanize::{Humanize, Language};
-use maud::{html, Markup, PreEscaped};
+use maud::{html, Markup};
+use rust_decimal::Decimal;
+use serde::Deserialize;
 use tokio::try_join;
 use uuid::Uuid;
 
@@ -99,24 +101,26 @@ async fn ride_screen_by_id(
                         }
                         h2 { span data-tooltip=(departure_pretty) { (departure_humanized) } }
                     }
-                    h3 {
-                        "Preço: "
-                        @if let Some(cost) = ride.cost {
-                            code { "R$" (cost.to_string()) }
-                        } @else {
-                            "a combinar"
+                    div .row {
+                        h3 {
+                            "Preço: "
+                            @if let Some(cost) = ride.cost {
+                                code { "R$" (cost.to_string()) }
+                            } @else {
+                                "a combinar"
+                            }
+                        }
+
+                        form method="post" .negative action=(format!("/rides/{}/delete", ride.id)) {
+                            @let am_driver = if let Some(s) = &session { ride.driver == s.creator } else { false };
+                            @if am_driver {
+                                button .small { "Apagar carona" }
+                            }
                         }
                     }
                 }
                 section {
                     header { h2 { "Motorista" } }
-
-                    @let am_driver = if let Some(s) = &session { ride.driver == s.creator } else { false };
-                    @if am_driver {
-                        form method="post" .negative action=(format!("/rides/{}/delete", ride.id)) {
-                            button .small { "Apagar carona" }
-                        }
-                    }
 
                     @let profile_link = format!("/profiles/{}", driver.email);
                     a href=(profile_link) {
@@ -136,26 +140,40 @@ async fn ride_screen_by_id(
                     header {
                         h2 { (format!("Passageiros ({}/{})", riders.len(), ride.seats)) }
                     }
-                    @let departed = Utc::now() > ride.departure;
+                    @let is_past = Utc::now() > ride.departure;
                     @let is_full =  riders.len() >= ride.seats.try_into().unwrap_or_default();
+                    @let (is_unavailable, unavailable_msg) = match (is_past, is_full) {
+                        (true, _) => (true, "Essa corrida já foi finalizada"),
+                        (_, true) => (true, "Não há vagas"),
+                        _ => (false, ""),
+                    };
                     @let already_reserved = if let Some(s) = &session {
                         riders.iter().any(|r| r.email == s.creator)
                     } else { false };
 
                     @if already_reserved {
                         form method="post" .negative action=(format!("/rides/{}/unreserve", ride.id)) {
-                                button .small { "Desreservar" }
+                            button .small { "Desreservar" }
                         }
-                    } @else {
+                    } @else if !am_driver {
                         form method="post" action=(format!("/rides/{}/reserve", ride.id)) {
-                                button .small disabled[(departed || is_full || am_driver)] { "Reservar" }
+                            button .small disabled[is_unavailable] { "Reservar" }
+                            (unavailable_msg)
                         }
                     }
 
                     ul {
                         @for rider in riders {
                             @let profile_link = format!("/profiles/{}", rider.email);
-                            li { a href=(profile_link) { (ACCOUNT_CIRCLE) (format!(" {} ({})", rider.real_name, rider.email)) }}
+                            li {
+                                @if am_driver {
+                                    form method="post" .negative .small action=(format!("/rides/{}/kick/{}", ride.id, rider.email)){
+                                        button .small .outline { "Recusar" }
+                                    }
+                                }
+                                " "
+                                a href=(profile_link) { (ACCOUNT_CIRCLE) (format!(" {} ({})", rider.real_name, rider.email)) }
+                            }
                         }
                     }
                 }
@@ -177,7 +195,6 @@ async fn ride_screen_by_id(
             }
         }
     };
-    // img src=(format!({"https://"}))
     Ok(layouts::default(main, session.as_ref()))
 }
 
@@ -191,7 +208,7 @@ async fn ride_reserve_action(
         Person::get(&state.db_pool, &session.creator)
     )?;
     if ride.driver == session.creator {
-        return Err(AppError::NotAllowed)
+        return Err(AppError::NotAllowed);
     }
     ride.insert_rider(&state.db_pool, &user)
         .await
@@ -208,11 +225,102 @@ async fn ride_unreserve_action(
         Person::get(&state.db_pool, &session.creator)
     )?;
     if ride.driver == session.creator {
-        return Err(AppError::NotAllowed)
+        return Err(AppError::NotAllowed);
     }
     ride.delete_rider(&state.db_pool, &user)
         .await
         .map(|_| Redirect::to(&format!("/rides/{id}")))
+}
+
+#[derive(Deserialize)]
+struct NewRideForm {
+    start_location: String,
+    end_location: String,
+    #[serde(with = "naive_date")]
+    departure_date: NaiveDate,
+    #[serde(with = "naive_time")]
+    departure_time: NaiveTime,
+    seats: u8,
+    cost: Option<Decimal>,
+}
+
+#[derive(Deserialize)]
+struct NewRideScreenQuery {
+    error: Option<String>,
+}
+
+async fn new_ride_screen(session: Session, query: Query<NewRideScreenQuery>) -> Markup {
+    let now = Local::now();
+    let today = now.format("%Y-%m-%d").to_string();
+    let timezone = now.format("GMT%:::z").to_string();
+
+    let main = html! {
+        article {
+            header {
+                h1 { "Nova carona" }
+            }
+            @if let Some(flash_message) = &query.error { (layouts::flash(flash_message, "error")) }
+            form method="post" {
+                label {
+                    "Local de partida "
+                    input name="start_location" required autofocus;
+                }
+                label {
+                    "Local de chegada "
+                    input name="end_location" required;
+                }
+                label {
+                    "Dia de saída "
+                    input name="departure_date" type="date" value=(today) required;
+                }
+                label {
+                    "Horário de saída "
+                    "("
+                    (timezone)
+                    ") "
+                    input name="departure_time" type="time" value=(now.to_string()) required;
+                }
+                label {
+                    "Máximo de passageiros "
+                    input name="seats" type="number" value="4" min="1" required;
+                }
+                label {
+                    "Contribuição por passageiro (opcional) "
+                    input name="cost" type="number" min="0.01" step="0.01";
+                }
+                button { "Criar" }
+            }
+        }
+    };
+    layouts::default(main, Some(&session))
+}
+
+async fn new_ride_action(
+    session: Session,
+    state: State<AppState>,
+    Form(form): Form<NewRideForm>,
+) -> Result<Redirect, AppError> {
+    let driver = Person::get(&state.db_pool, &session.creator).await?;
+    let departure = TimeZone::from_local_datetime(
+        &Local,
+        &NaiveDateTime::new(form.departure_date, form.departure_time),
+    )
+    .single()
+    .unwrap()
+    .into();
+
+    let new_ride = Ride::create(
+        &state.db_pool,
+        &driver,
+        form.seats.into(),
+        departure,
+        form.start_location,
+        form.end_location,
+        form.cost.filter(|c| c > &Decimal::from(0)), // Descartar valores menores ou igual a 0
+    )
+    .await?;
+
+    Ok(Redirect::to(&format!("/rides/{}", new_ride.id)))
 }
 
 pub fn router(state: &AppState) -> Router<AppState> {
@@ -221,5 +329,36 @@ pub fn router(state: &AppState) -> Router<AppState> {
         .route("/rides/:id", get(ride_screen_by_id))
         .route("/rides/:id/reserve", post(ride_reserve_action))
         .route("/rides/:id/unreserve", post(ride_unreserve_action))
+        .route("/rides/new", get(new_ride_screen).post(new_ride_action))
         .with_state(state.clone())
+}
+
+mod naive_date {
+    use chrono::NaiveDate;
+    use serde::{self, Deserialize, Deserializer};
+
+    const FORMAT: &'static str = "%Y-%m-%d";
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDate, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        NaiveDate::parse_from_str(&s, FORMAT).map_err(serde::de::Error::custom)
+    }
+}
+
+mod naive_time {
+    use chrono::NaiveTime;
+    use serde::{self, Deserialize, Deserializer};
+
+    const FORMAT: &'static str = "%H:%M";
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveTime, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        NaiveTime::parse_from_str(&s, FORMAT).map_err(serde::de::Error::custom)
+    }
 }
