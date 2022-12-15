@@ -19,6 +19,7 @@ struct RegisterForm {
     email: String,
     real_name: String,
     password: String,
+    pix_key: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -62,6 +63,10 @@ async fn register_screen(
                     "Senha "
                     input type="password" name="password" autocomplete="new-password" required;
                 }
+                label {
+                    "Chave pix (opcional, para receber pagamentos)"
+                    input name="pix_key" autofocus;
+                }
                 button { "Registrar" }
             }
         }
@@ -79,9 +84,15 @@ async fn register_action(
         return Ok((cookie_jar, Redirect::to("/")));
     }
 
-    Person::register(&state.db_pool, &form.email, &form.password, &form.real_name)
-        .await
-        .map_err(|e| e.redirect("/register"))?;
+    Person::register(
+        &state.db_pool,
+        &form.email,
+        &form.password,
+        &form.real_name,
+        form.pix_key.as_deref(),
+    )
+    .await
+    .map_err(|e| e.redirect("/register"))?;
 
     let session = Person::login(&state.db_pool, &form.email, &form.password)
         .await

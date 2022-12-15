@@ -111,13 +111,14 @@ impl Person {
         email: &str,
         password: &str,
         real_name: &str,
+        pix_key: Option<&str>,
     ) -> Result<Self, AppError> {
         let password = hash_password(&password)?;
         let person = Self {
             email: email.into(),
             password,
             real_name: real_name.into(),
-            ..Default::default()
+            pix_key: pix_key.map(|s| s.into()),
         };
         person.insert(db).await?;
         Ok(person)
