@@ -47,7 +47,7 @@ async fn rides_screen(
                                 }
                                 h2 { span data-tooltip=(departure_pretty) { (departure_humanized) } }
                             }
-                            h3 {
+                            h4 {
                                 "Preço: "
                                 @if let Some(cost) = ride.cost {
                                     code { "R$" (cost.to_string()) }
@@ -102,7 +102,7 @@ async fn ride_screen_by_id(
                         }
                         h2 { span data-tooltip=(departure_pretty) { (departure_humanized) } }
                     }
-                    h3 {
+                    h4 {
                         "Preço: "
                         @if let Some(cost) = ride.cost {
                             code { "R$" (cost.to_string()) }
@@ -152,7 +152,7 @@ async fn ride_screen_by_id(
 
                     @if already_reserved {
                         form method="post" action=(format!("/rides/{}/unreserve", ride.id)) {
-                            button .outline { "Desreservar" }
+                            button .outline .negative { "Desreservar" }
                         }
                     } @else if !am_driver {
                         form method="post" action=(format!("/rides/{}/reserve", ride.id)) {
