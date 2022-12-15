@@ -45,7 +45,7 @@ async fn rides_screen(
                                     br;
                                     (SPORTS_SCORE) " " (ride.end_location)
                                 }
-                                h2 { span data-tooltip=(departure_pretty) { (departure_humanized) } }
+                                h2 .time { time data-tooltip=(departure_pretty) { (departure_humanized) } }
                             }
                             h4 {
                                 "Preço: "
@@ -100,7 +100,7 @@ async fn ride_screen_by_id(
                             br;
                             (SPORTS_SCORE) " " (ride.end_location)
                         }
-                        h2 { span data-tooltip=(departure_pretty) { (departure_humanized) } }
+                        h2 .time { time data-tooltip=(departure_pretty) { (departure_humanized) } }
                     }
                     h4 {
                         "Preço: "
@@ -232,6 +232,7 @@ struct NewRideForm {
     #[serde(with = "naive_time")]
     departure_time: NaiveTime,
     seats: i32,
+    #[serde(with = "option_decimal")]
     cost: Option<Decimal>,
     #[serde(default)]
     public: bool,
@@ -377,5 +378,20 @@ mod naive_time {
     {
         let s = String::deserialize(deserializer)?;
         NaiveTime::parse_from_str(&s, FORMAT).map_err(serde::de::Error::custom)
+    }
+}
+
+mod option_decimal {
+    use std::str::FromStr;
+
+    use rust_decimal::Decimal;
+    use serde::{self, Deserialize, Deserializer};
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<Decimal>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        Ok(Decimal::from_str(&s).ok())
     }
 }
