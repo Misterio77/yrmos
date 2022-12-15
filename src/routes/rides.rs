@@ -6,7 +6,7 @@ use axum::{
 };
 use chrono::{DateTime, Local, NaiveDate, NaiveDateTime, NaiveTime, TimeZone, Utc};
 use chrono_humanize::{Humanize, Language};
-use maud::{html, Markup};
+use maud::{html, Markup, PreEscaped};
 use rust_decimal::Decimal;
 use serde::Deserialize;
 use tokio::try_join;
@@ -245,7 +245,7 @@ struct NewRideScreenQuery {
 async fn new_ride_screen(session: Session, query: Query<NewRideScreenQuery>) -> Markup {
     let now = Local::now();
     let today = now.format("%Y-%m-%d").to_string();
-    let timezone = now.format("GMT%:::z").to_string();
+    let timezone = now.format("%:z").to_string();
 
     let main = html! {
         article {
@@ -268,10 +268,13 @@ async fn new_ride_screen(session: Session, query: Query<NewRideScreenQuery>) -> 
                 }
                 label {
                     "Horário de saída "
-                    "("
+                    "(GMT"
                     (timezone)
                     ") "
                     input name="departure_time" type="time" value=(now.to_string()) required;
+                }
+                #dt_warn hidden {
+                    p .highlight .negative { "Essa data e hora está no passado, tem certeza?" }
                 }
                 label {
                     "Máximo de passageiros "
@@ -288,6 +291,22 @@ async fn new_ride_screen(session: Session, query: Query<NewRideScreenQuery>) -> 
                 button { "Criar" }
             }
         }
+        script {
+            (format!("let timezone = '{timezone}';"))
+        }
+        script { (PreEscaped(r###"
+            let departure_time = document.querySelector("input[name='departure_time']");
+            let departure_date = document.querySelector("input[name='departure_date']");
+            let dt_warn = document.querySelector("#dt_warn");
+
+            function check_dt() {
+                var dt = Date.parse(departure_date.value + "T" + departure_time.value + timezone);
+                dt_warn.hidden = (Date.now() < dt);
+            }
+
+            departure_time.addEventListener("input", check_dt);
+            departure_date.addEventListener("input", check_dt);
+        "###)) }
     };
     layouts::default(main, Some(&session))
 }
