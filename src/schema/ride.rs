@@ -15,13 +15,14 @@ pub struct Ride {
     pub start_location: String,
     pub end_location: String,
     pub cost: Option<Decimal>,
+    pub public: bool,
 }
 
 impl Ride {
     async fn fetch(db: &PgPool, id: Uuid) -> Result<Self, AppError> {
         sqlx::query_as!(
             Self,
-            "SELECT id, driver, seats, departure, start_location, end_location, cost
+            "SELECT id, driver, seats, departure, start_location, end_location, cost, public
             FROM ride
             WHERE id = $1
             ",
@@ -38,7 +39,7 @@ impl Ride {
     ) -> Result<Vec<Self>, AppError> {
         sqlx::query_as!(
             Self,
-            "SELECT id, driver, seats, departure, start_location, end_location, cost
+            "SELECT id, driver, seats, departure, start_location, end_location, cost, public
             FROM ride
             WHERE ($1::varchar IS NULL OR driver = $1) AND (NOT $2 OR departure > NOW())",
             driver,
@@ -51,8 +52,8 @@ impl Ride {
     async fn insert(&self, db: &PgPool) -> Result<(), AppError> {
         sqlx::query!(
             "INSERT INTO ride
-            (id, driver, seats, departure, start_location, end_location, cost)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)",
+            (id, driver, seats, departure, start_location, end_location, cost, public)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
             self.id,
             self.driver,
             self.seats,
@@ -60,6 +61,7 @@ impl Ride {
             self.start_location,
             self.end_location,
             self.cost,
+            self.public,
         )
         .execute(db)
         .await
@@ -104,6 +106,7 @@ impl Ride {
         start_location: String,
         end_location: String,
         cost: Option<Decimal>,
+        public: bool,
     ) -> Result<Self, AppError> {
         let ride = Self {
             id: Uuid::new_v4(),
@@ -113,6 +116,7 @@ impl Ride {
             start_location,
             end_location,
             cost,
+            public,
         };
         ride.insert(db).await?;
         Ok(ride)

@@ -9,12 +9,16 @@
   min-width: 320px;
 }
 
-button.small {
-  display: inline;
-  width: auto;
+svg {
+  color: var(--color);
 }
+
 form.small {
   display: inline;
+  button {
+    display: inline;
+    width: auto;
+  }
 }
 
 code {
@@ -25,20 +29,14 @@ section header h1 {
   text-align: center;
 }
 
+.highlight {
+  --color: var(--primary);
+}
 .positive {
-  color: var(--ins-color);
+  --primary: var(--ins-color);
 }
 .negative {
-  color: var(--del-color);
-  button {
-    color: var(--primary-inverse);
-      background-color: var(--form-element-invalid-border-color);
-      border-color: var(--form-element-invalid-border-color);
-    &:hover {
-      background-color: var(--form-element-invalid-active-border-color);
-      border-color: var(--form-element-invalid-active-border-color);
-    }
-  }
+  --primary: var(--del-color)
 }
 
 .grid {

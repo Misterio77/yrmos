@@ -24,12 +24,15 @@ CREATE TABLE session (
 CREATE TABLE ride (
     id uuid NOT NULL,
     driver varchar NOT NULL,
-    seats int NOT NULL DEFAULT 4,
+    seats int NOT NULL,
     departure timestamptz NOT NULL,
     start_location varchar NOT NULL,
     end_location varchar NOT NULL,
-    cost DECIMAL DEFAULT NULL,
+    cost decimal DEFAULT NULL,
+    public boolean DEFAULT true NOT NULL,
 
+    CONSTRAINT ride_cost_ck CHECK(cost > 0),
+    CONSTRAINT ride_seats_ck CHECK(seats > 0),
     CONSTRAINT ride_pk PRIMARY KEY (id)
 );
 

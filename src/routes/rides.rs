@@ -28,6 +28,7 @@ async fn rides_screen(
     let main = html! {
         section {
             header { h1 { "Caronas" }}
+            a role="button" href="/rides/new" { "Oferecer carona" }
             .grid {
                 @for ride in rides.iter() {
                     @let departure_local: DateTime<Local> = ride.departure.into();
@@ -101,21 +102,19 @@ async fn ride_screen_by_id(
                         }
                         h2 { span data-tooltip=(departure_pretty) { (departure_humanized) } }
                     }
-                    div .row {
-                        h3 {
-                            "Preço: "
-                            @if let Some(cost) = ride.cost {
-                                code { "R$" (cost.to_string()) }
-                            } @else {
-                                "a combinar"
-                            }
+                    h3 {
+                        "Preço: "
+                        @if let Some(cost) = ride.cost {
+                            code { "R$" (cost.to_string()) }
+                        } @else {
+                            "a combinar"
                         }
+                    }
 
-                        form method="post" .negative action=(format!("/rides/{}/delete", ride.id)) {
-                            @let am_driver = if let Some(s) = &session { ride.driver == s.creator } else { false };
-                            @if am_driver {
-                                button .small { "Apagar carona" }
-                            }
+                    form method="post" action=(format!("/rides/{}/delete", ride.id)) {
+                        @let am_driver = if let Some(s) = &session { ride.driver == s.creator } else { false };
+                        @if am_driver {
+                            button .negative .outline { "Apagar carona" }
                         }
                     }
                 }
@@ -128,7 +127,7 @@ async fn ride_screen_by_id(
                     }
                     " "
                     @let positive_rep = driver_rep >= 0;
-                    span .{
+                    span .highlight .{
                         @if positive_rep { "positive" } @else { "negative" }
                     } {
                         @if positive_rep { (THUMB_UP) } @else { (THUMB_DOWN) }
@@ -152,12 +151,12 @@ async fn ride_screen_by_id(
                     } else { false };
 
                     @if already_reserved {
-                        form method="post" .negative action=(format!("/rides/{}/unreserve", ride.id)) {
-                            button .small { "Desreservar" }
+                        form method="post" action=(format!("/rides/{}/unreserve", ride.id)) {
+                            button .outline { "Desreservar" }
                         }
                     } @else if !am_driver {
                         form method="post" action=(format!("/rides/{}/reserve", ride.id)) {
-                            button .small disabled[is_unavailable] { "Reservar" }
+                            button .outline disabled[is_unavailable] { "Reservar" }
                             (unavailable_msg)
                         }
                     }
@@ -165,15 +164,7 @@ async fn ride_screen_by_id(
                     ul {
                         @for rider in riders {
                             @let profile_link = format!("/profiles/{}", rider.email);
-                            li {
-                                @if am_driver {
-                                    form method="post" .negative .small action=(format!("/rides/{}/kick/{}", ride.id, rider.email)){
-                                        button .small .outline { "Recusar" }
-                                    }
-                                }
-                                " "
-                                a href=(profile_link) { (ACCOUNT_CIRCLE) (format!(" {} ({})", rider.real_name, rider.email)) }
-                            }
+                            li { a href=(profile_link) { (ACCOUNT_CIRCLE) (format!(" {} ({})", rider.real_name, rider.email)) } }
                         }
                     }
                 }
@@ -240,8 +231,10 @@ struct NewRideForm {
     departure_date: NaiveDate,
     #[serde(with = "naive_time")]
     departure_time: NaiveTime,
-    seats: u8,
+    seats: i32,
     cost: Option<Decimal>,
+    #[serde(default)]
+    public: bool,
 }
 
 #[derive(Deserialize)]
@@ -288,6 +281,10 @@ async fn new_ride_screen(session: Session, query: Query<NewRideScreenQuery>) -> 
                     "Contribuição por passageiro (opcional) "
                     input name="cost" type="number" min="0.01" step="0.01";
                 }
+                label {
+                    input role="switch" type="checkbox" name="public" value="true" checked;
+                    "Exibir em buscas?"
+                }
                 button { "Criar" }
             }
         }
@@ -312,11 +309,12 @@ async fn new_ride_action(
     let new_ride = Ride::create(
         &state.db_pool,
         &driver,
-        form.seats.into(),
+        form.seats,
         departure,
         form.start_location,
         form.end_location,
-        form.cost.filter(|c| c > &Decimal::from(0)), // Descartar valores menores ou igual a 0
+        form.cost,
+        form.public,
     )
     .await?;
 
