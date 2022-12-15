@@ -16,7 +16,9 @@ CREATE TABLE session (
 
     CONSTRAINT session_pk PRIMARY KEY (id),
     CONSTRAINT session_creator_fk FOREIGN KEY (creator)
-        REFERENCES person (email) ON DELETE CASCADE
+        REFERENCES person (email)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 CREATE TABLE ride (
@@ -34,12 +36,29 @@ CREATE TABLE ride (
 CREATE TABLE rider (
     ride uuid NOT NULL,
     person varchar NOT NULL,
+    rate boolean,
 
     CONSTRAINT rider_pk PRIMARY KEY (ride, person),
     CONSTRAINT rider_person_fk FOREIGN KEY (person)
-        REFERENCES person (email) ON DELETE CASCADE,
+        REFERENCES person (email)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
     CONSTRAINT rider_ride_fk FOREIGN KEY (ride)
-        REFERENCES ride (id) ON DELETE CASCADE
+        REFERENCES ride (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
+
+CREATE VIEW reputation AS
+    SELECT person.email AS person,
+        (
+            COUNT(CASE WHEN rider.rate THEN 1 END) -
+            COUNT(CASE WHEN (NOT rider.rate) THEN 1 END)
+        ) AS score
+    FROM person
+    INNER JOIN ride ON ride.driver = person.email
+    INNER JOIN rider ON rider.ride = ride.id
+    WHERE rate IS NOT NULL
+    GROUP BY person.email;
 
 COMMIT;
