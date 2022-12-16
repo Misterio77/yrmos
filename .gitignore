@@ -2,3 +2,5 @@
 result
 # cargo build
 target
+# nix vm
+*.qcow2

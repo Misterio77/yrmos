@@ -19,6 +19,8 @@ pub enum AppError {
     NotFound,
     #[error("Você não pode fazer essa ação")]
     NotAllowed,
+    #[error("Erro ao migrar base de dados")]
+    DatabaseMigration(#[from] sqlx::migrate::MigrateError),
     #[error("Erro na base de dados")]
     Database(#[from] sqlx::Error),
     #[error("Erro ao calcular hash")]

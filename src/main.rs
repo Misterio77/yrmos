@@ -19,8 +19,12 @@ async fn fallback(session: Option<Session>) -> Markup {
 #[tokio::main]
 async fn main() -> Result<(), AppError> {
     let config = AppConfig::parse();
+
     config.get_logger().init()?;
     let state = config.to_state().await?;
+    let addr = config.get_addr();
+    log::info!("Executando migrations em {}", config.database_url);
+    sqlx::migrate!("db/migrations").run(&state.db_pool).await?;
 
     let app = Router::new()
         .fallback(fallback)
@@ -31,9 +35,6 @@ async fn main() -> Result<(), AppError> {
         .merge(rides::router(&state))
         .with_state(state)
         .merge(style::router());
-
-    let addr = config.get_addr();
-
     log::info!("Ouvindo em {addr}");
     Server::bind(&addr).serve(app.into_make_service()).await?;
 

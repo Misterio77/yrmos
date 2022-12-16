@@ -30,11 +30,6 @@ pkgs.rustPlatform.buildRustPackage rec {
     ln ${picocss} -sfT assets/scss/pico
   '';
 
-  postInstall = ''
-    mkdir -p $out/etc
-    cp -r db $out/etc
-  '';
-
   meta = with pkgs.lib; {
     description = manifest.description;
     homepage = manifest.homepage;

@@ -13,8 +13,14 @@
     rec {
       nixosModules.default = import ./module.nix;
 
-      packages = forAllSystems (system: {
-        default = pkgsFor.${system}.callPackage ./default.nix { };
+      overlays.default = final: _prev: {
+        yrmos = final.callPackage ./default.nix { };
+      };
+
+      packages = forAllSystems (system: rec {
+        default = yrmos;
+        yrmos = pkgsFor.${system}.callPackage ./default.nix { };
+        vm = nixosConfigurations.yrmos.config.system.build.vm;
       });
 
       devShells = forAllSystems (system: {
@@ -22,6 +28,36 @@
       });
 
       hydraJobs = packages;
+
+      # Para testes & desenvolvimento
+      nixosConfigurations.yrmos = nixpkgs.lib.nixosSystem {
+        modules = [
+          ({ pkgs, ... }: {
+            imports = [ nixosModules.default ];
+            nixpkgs = {
+              overlays = [ overlays.default ];
+              hostPlatform = "x86_64-linux";
+            };
+
+            services.yrmos = {
+              enable = true;
+              openFirewall = true;
+            };
+
+            users.users.yrmos = {
+              password = "yrmos";
+              packages = [ pkgs.yrmos ];
+              shell = pkgs.bashInteractive;
+              extraGroups = [ "wheel" ];
+            };
+          })
+        ];
+      };
+
+      nixConfig = {
+        extra-substituers = [ "https://cache.m7.rs" ];
+        extra-trusted-public-keys = [ "cache.m7.rs:kszZ/NSwE/TjhOcPPQ16IuUiuRSisdiIwhKZCxguaWg=" ];
+      };
     };
 }
 

@@ -13,7 +13,5 @@ pkgs.mkShell {
     postgresql
     pgformatter
     sqls
-    # Diagram
-    plantuml
   ];
 }
