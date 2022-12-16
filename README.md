@@ -9,6 +9,14 @@ Build e testes (quando existirem) rodam no meu Hydra: https://hydra.m7.rs/projec
 
 A stack é: Rust (axum, sqlx, maud), PostgreSQL, SCSS.
 
+## TODO
+
+- Modularizar um pouco o código em `routes`
+- Implementar busca e filtros
+- Ação para remover corridas
+- Tela e ação para avaliação de corridas
+- Telas e ações relacionadas a perfis
+
 ## Como buildar
 
 Você pode buildar mais facilmente usando o [Nix](https://nixos.org): `nix
