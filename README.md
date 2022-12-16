@@ -13,7 +13,7 @@ A stack é: Rust (axum, sqlx, maud), PostgreSQL, SCSS.
 
 Você pode buildar mais facilmente usando o [Nix](https://nixos.org): `nix
 build`. Você nem precisa clonar o repositório: `nix build
-github:misterio77/yrmos``.
+github:misterio77/yrmos`.
 
 Caso você aceite a prompt para o cache, binários pré-buildados pelo CI/CD serão
 usados automaticamente, se disponíveis.
