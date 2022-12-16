@@ -11,20 +11,20 @@
       pkgsFor = nixpkgs.legacyPackages;
     in
     rec {
-      nixosModules.default = import ./module.nix;
+      nixosModules.default = import nix/module.nix;
 
       overlays.default = final: _prev: {
-        yrmos = final.callPackage ./default.nix { };
+        yrmos = final.callPackage nix/default.nix { };
       };
 
       packages = forAllSystems (system: rec {
         default = yrmos;
-        yrmos = pkgsFor.${system}.callPackage ./default.nix { };
+        yrmos = pkgsFor.${system}.callPackage nix/default.nix { };
         vm = nixosConfigurations.yrmos.config.system.build.vm;
       });
 
       devShells = forAllSystems (system: {
-        default = pkgsFor.${system}.callPackage ./shell.nix { };
+        default = pkgsFor.${system}.callPackage nix/shell.nix { };
       });
 
       hydraJobs = packages;
