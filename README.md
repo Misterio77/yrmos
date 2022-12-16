@@ -5,9 +5,11 @@
 
 MVP de um sistema para organizar caronas dentro de uma organização.
 
-Build e testes (quando existirem) rodam no meu Hydra: https://hydra.m7.rs/project/yrmos/main
-
 A stack é: Rust (axum, sqlx, maud), PostgreSQL, SCSS.
+
+Build e testes (quando existirem) rodam no meu Hydra: https://hydra.m7.rs/project/yrmos/main.
+
+Temos uma instância rodando em um servidor nosso: https://yrmos.m7.rs.
 
 ## TODO
 
