@@ -31,27 +31,8 @@
 
       # Para testes & desenvolvimento
       nixosConfigurations.yrmos = nixpkgs.lib.nixosSystem {
-        modules = [
-          ({ pkgs, ... }: {
-            imports = [ nixosModules.default ];
-            nixpkgs = {
-              overlays = [ overlays.default ];
-              hostPlatform = "x86_64-linux";
-            };
-
-            services.yrmos = {
-              enable = true;
-              openFirewall = true;
-            };
-
-            users.users.yrmos = {
-              password = "yrmos";
-              packages = [ pkgs.yrmos ];
-              shell = pkgs.bashInteractive;
-              extraGroups = [ "wheel" ];
-            };
-          })
-        ];
+        specialArgs = { inherit (self) outputs; };
+        modules = [ nix/vm.nix ];
       };
 
       nixConfig = {
