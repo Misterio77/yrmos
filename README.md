@@ -65,7 +65,4 @@ Unix Socket. O serviço roda no usuário `yrmos`. Tudo isso é configurável via
 options.
 
 Mesmo que você não use NixOS, só o Nix, você pode usar esse módulo numa VM.
-Temos uma já pronta em: `nix run .#vm`
-
-Use `QEMU_NET_OPTS` Para expor a porta da VM, por exemplo:
-`QEMU_NET_OPTS="hostfwd=tcp::8080-:8080" nix run .#vm`
+Temos uma já pronta em: `nix run .#vm`. O Yrmos estará acessível na porta 8080.
