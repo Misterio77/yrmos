@@ -10,12 +10,29 @@ let
     rev = "v1.4.4";
     sha256 = "sha256-k3ovaAa/mC+jO9rgyOZAq8FfwWJkK3uypwxZ6NXvFEo=";
   };
+  excludeBaseNames = files: (path: _: builtins.all (x: (builtins.baseNameOf path) != x) files);
 in
 pkgs.rustPlatform.buildRustPackage rec {
   pname = manifest.name;
   version = manifest.version;
 
-  src = pkgs.lib.cleanSource ../.;
+  src = builtins.path {
+    name = "yrmos-source";
+    path = ../.;
+    filter = (excludeBaseNames [
+      "result"
+      "target"
+      "nixos.qcow"
+      "nix"
+      "flake.nix"
+      "flake.lock"
+      "README.md"
+      "LICENSE"
+      ".gitattributes"
+      ".gitmodules"
+      ".gitignore"
+    ]);
+  };
 
   cargoLock = {
     lockFile = ../Cargo.lock;
