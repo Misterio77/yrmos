@@ -1,4 +1,4 @@
-{ pkgs, outputs, ... }: {
+{ outputs, ... }: {
   imports = [ outputs.nixosModules.default ];
   nixpkgs = {
     overlays = [ outputs.overlays.default ];
@@ -12,7 +12,8 @@
   };
 
   # Configurações da VM
-  virtualisation.vmVariant = {
+  virtualisation.vmVariant = { modulesPath, ... }: {
+    imports = [ "${modulesPath}/profiles/minimal.nix" ];
     virtualisation = {
       graphics = false;
       forwardPorts = [
