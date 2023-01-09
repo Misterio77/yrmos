@@ -35,10 +35,10 @@
         modules = [ nix/vm.nix ];
       };
 
-      nixConfig = {
-        extra-substituers = [ "https://cache.m7.rs" ];
-        extra-trusted-public-keys = [ "cache.m7.rs:kszZ/NSwE/TjhOcPPQ16IuUiuRSisdiIwhKZCxguaWg=" ];
-      };
+    };
+    nixConfig = {
+      extra-substituters = [ "https://cache.m7.rs" ];
+      extra-trusted-public-keys = [ "cache.m7.rs:kszZ/NSwE/TjhOcPPQ16IuUiuRSisdiIwhKZCxguaWg=" ];
     };
 }
 
