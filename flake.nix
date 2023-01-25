@@ -1,6 +1,11 @@
 {
   description = "Yrmos";
 
+  nixConfig = {
+    extra-substituters = [ "https://cache.m7.rs" ];
+    extra-trusted-public-keys = [ "cache.m7.rs:kszZ/NSwE/TjhOcPPQ16IuUiuRSisdiIwhKZCxguaWg=" ];
+  };
+
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
   };
@@ -35,10 +40,6 @@
         modules = [ nix/vm.nix ];
       };
 
-    };
-    nixConfig = {
-      extra-substituters = [ "https://cache.m7.rs" ];
-      extra-trusted-public-keys = [ "cache.m7.rs:kszZ/NSwE/TjhOcPPQ16IuUiuRSisdiIwhKZCxguaWg=" ];
     };
 }
 
