@@ -1,8 +1,8 @@
-{ pkgs, outputs, ... }: {
+{ pkgs, outputs, hostPlatform ? "x86_64-linux", ... }: {
   imports = [ outputs.nixosModules.default ];
   nixpkgs = {
+    inherit hostPlatform;
     overlays = [ outputs.overlays.default ];
-    hostPlatform = "x86_64-linux";
   };
 
   services.yrmos = {

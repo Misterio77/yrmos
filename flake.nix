@@ -14,6 +14,11 @@
     let
       forAllSystems = nixpkgs.lib.genAttrs [ "x86_64-linux" "aarch64-linux" ];
       pkgsFor = nixpkgs.legacyPackages;
+      vmFor = forAllSystems (hostPlatform:
+        nixpkgs.lib.nixosSystem {
+          specialArgs = { inherit hostPlatform; inherit (self) outputs; };
+          modules = [ nix/vm.nix ];
+      });
     in
     rec {
       nixosModules.default = import nix/module.nix;
@@ -22,10 +27,9 @@
         yrmos = final.callPackage nix/default.nix { };
       };
 
-      packages = forAllSystems (system: rec {
-        default = yrmos;
-        yrmos = pkgsFor.${system}.callPackage nix/default.nix { };
-        vm = nixosConfigurations.yrmos.config.system.build.vm;
+      packages = forAllSystems (system: {
+        default = pkgsFor.${system}.callPackage nix/default.nix { };
+        vm = vmFor.${system}.config.system.build.vm;
       });
 
       devShells = forAllSystems (system: {
@@ -35,10 +39,7 @@
       hydraJobs = packages;
 
       # Para testes & desenvolvimento
-      nixosConfigurations.yrmos = nixpkgs.lib.nixosSystem {
-        specialArgs = { inherit (self) outputs; };
-        modules = [ nix/vm.nix ];
-      };
+      nixosConfigurations.yrmos = vmFor."x86_64-linux";
 
     };
 }
