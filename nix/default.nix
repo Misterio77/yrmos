@@ -1,4 +1,4 @@
-{ lib, rustPlatform, fetchFromGitHub, ... }:
+{ lib, rustPlatform, fetchFromGitHub, mold, clang, ... }:
 
 let
   manifest = (lib.importTOML ../Cargo.toml).package;
@@ -24,6 +24,17 @@ rustPlatform.buildRustPackage {
     "db.*"
     "src.*"
   ];
+
+  nativeBuildInputs = [
+    # Faster linking
+    mold
+    clang
+  ];
+  RUSTFLAGS = [
+    "-C linker=clang"
+    "-C link-arg=-fuse-ld=${mold}/bin/mold"
+  ];
+
 
   cargoLock = {
     lockFile = ../Cargo.lock;

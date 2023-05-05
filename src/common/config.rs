@@ -1,9 +1,9 @@
+use axum_extra::extract::cookie::Key;
 use clap::Parser;
 use log::LevelFilter;
 use simple_logger::SimpleLogger;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use std::net::{IpAddr, SocketAddr};
-use axum_extra::extract::cookie::Key;
 
 use crate::{errors::AppError, state::AppState};
 

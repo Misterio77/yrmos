@@ -1,17 +1,19 @@
 { pkgs ? import <nixpkgs> { }, ... }:
 
-pkgs.mkShell {
-  inputsFrom = [ (pkgs.callPackage ./default.nix { }) ];
-  buildInputs = with pkgs; [
+(pkgs.callPackage ./default.nix { }).overrideAttrs (oa: {
+  nativeBuildInputs = with pkgs; [
     # Rust tooling
     rustc
     rust-analyzer
     rustfmt
     clippy
     sqlx-cli
+    cargo-watch
     # Postgres tooling
     postgresql
     pgformatter
     sqls
-  ];
-}
+    # SCSS tooling
+    sass
+  ] ++ oa.nativeBuildInputs;
+})

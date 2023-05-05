@@ -1,6 +1,7 @@
-pub mod errors;
 pub mod config;
-pub mod state;
-pub mod layouts;
-pub mod style;
+pub mod errors;
+pub mod files;
 pub mod icons;
+pub mod layouts;
+pub mod state;
+pub mod style;

@@ -1,36 +1,31 @@
 use axum::{
+    http::HeaderValue,
     response::{IntoResponse, Response},
-    routing::get,
-    Router,
 };
-use hyper::{
-    header::{self, HeaderValue},
-    HeaderMap,
-};
+use axum::{routing::get, Router};
+use hyper::{header, HeaderMap};
 
-pub struct StyleSheet(pub String);
+use super::files::include_out_file;
 
-impl IntoResponse for StyleSheet {
-    fn into_response(self) -> Response {
-        let mut headers = HeaderMap::new();
-        headers.insert(
+pub const STYLESHEET_CONTENTS: &'static str = include_out_file!("/style.css");
+pub const STYLESHEET_HASH: &'static str = include_out_file!("/style.css.hash");
+
+async fn style_route() -> Response {
+    let headers: HeaderMap = [
+        (
             header::CONTENT_TYPE,
             HeaderValue::from_static("text/css; charset=utf-8"),
-        );
-        headers.insert(
+        ),
+        (
             header::CACHE_CONTROL,
             HeaderValue::from_static("max-age=604800"),
-        );
-        (headers, self.0).into_response()
-    }
-}
-
-static STYLE: &str = include_str!(concat!(env!("OUT_DIR"), "/style.css"));
-
-async fn style_route() -> StyleSheet {
-    StyleSheet(STYLE.into())
+        ),
+    ]
+    .into_iter()
+    .collect();
+    (headers, STYLESHEET_CONTENTS).into_response()
 }
 
 pub fn router() -> Router {
-    Router::new().route("/assets/:version/style.css", get(style_route))
+    Router::new().route("/assets/:hash/style.css", get(style_route))
 }

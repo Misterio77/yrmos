@@ -3,7 +3,7 @@ use maud::{html, Markup, DOCTYPE};
 use crate::{
     icons::{ACCOUNT_CIRCLE, FILTER_LIST, LOGIN, LOGOUT, YRMOS_LOGO},
     schema::Session,
-    VERSION,
+    style::STYLESHEET_HASH,
 };
 
 pub fn default(content: Markup, session: Option<&Session>) -> Markup {
@@ -18,7 +18,7 @@ pub fn root(content: Markup, session: Option<&Session>, show_session: bool) -> M
                 meta charset="utf-8";
                 meta name="viewport" content="width=device-width, initial-scale=1.0";
                 title { "Yrmos" }
-                link rel="stylesheet" href={"/assets/"(VERSION)"/style.css"};
+                link rel="stylesheet" href={"/assets/"(STYLESHEET_HASH)"/style.css"};
             }
             body {
                 (navbar(session, show_session))

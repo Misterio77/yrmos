@@ -23,7 +23,7 @@ async fn main() -> Result<(), AppError> {
     config.get_logger().init()?;
     let state = config.to_state().await?;
     let addr = config.get_addr();
-    log::info!("Executando migrations em {}", config.database_url);
+    log::info!("Executando migrations em {db}", db = config.database_url);
     sqlx::migrate!("db/migrations").run(&state.db_pool).await?;
 
     let app = Router::new()
