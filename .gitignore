@@ -4,3 +4,5 @@ result
 target
 # nix vm
 *.qcow2
+# Postgres
+.db
