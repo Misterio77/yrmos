@@ -3,10 +3,12 @@ use clap::Parser;
 
 use maud::Markup;
 use yrmos::{
-    common::{config::AppConfig, errors::AppError, style},
+    config::AppConfig,
+    errors::AppError,
     layouts,
     routes::{login, logout, register, rides},
     schema::Session,
+    style, version,
 };
 
 async fn home() -> Redirect {
@@ -34,7 +36,8 @@ async fn main() -> Result<(), AppError> {
         .merge(logout::router(&state))
         .merge(rides::router(&state))
         .with_state(state)
-        .merge(style::router());
+        .merge(style::router())
+        .merge(version::router());
     log::info!("Ouvindo em {addr}");
     Server::bind(&addr).serve(app.into_make_service()).await?;
 

@@ -6,7 +6,7 @@ fn main() {
     let options = grass::Options::default();
     let scss_path = "assets/scss/style.scss";
     let dest_css_file = Path::new(&out).join("style.css");
-    let dest_hash_file = Path::new(&out).join("style.css.hash");
+    let dest_hash_file = Path::new(&out).join("style.hash");
 
     let compiled_css = grass::from_path(scss_path, &options).expect("Couldn't compile sass");
     let css_hash = blake3::hash(compiled_css.as_bytes()).to_hex();

@@ -5,3 +5,4 @@ pub mod icons;
 pub mod layouts;
 pub mod state;
 pub mod style;
+pub mod version;

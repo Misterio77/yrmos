@@ -1,4 +1,4 @@
-use maud::{html, Markup, DOCTYPE};
+use maud::{html, Markup, PreEscaped, DOCTYPE};
 
 use crate::{
     icons::{ACCOUNT_CIRCLE, FILTER_LIST, LOGIN, LOGOUT, YRMOS_LOGO},
@@ -19,6 +19,7 @@ pub fn root(content: Markup, session: Option<&Session>, show_session: bool) -> M
                 meta name="viewport" content="width=device-width, initial-scale=1.0";
                 title { "Yrmos" }
                 link rel="stylesheet" href={"/assets/"(STYLESHEET_HASH)"/style.css"};
+                (auto_reload())
             }
             body {
                 (navbar(session, show_session))
@@ -74,6 +75,47 @@ pub fn footer() -> Markup {
     }
 }
 
+/// Recarrega a página automáticamente se detectar que o servidor caiu e voltou
+pub fn auto_reload() -> Markup {
+    #[cfg(debug_assertions)]
+    return html! {
+        script { (PreEscaped(r###"
+            const delay = ms => new Promise(res => setTimeout(res, ms))
+
+            async function checkOnline(url) {
+                const controller = new AbortController();
+                try {
+                    const id = setTimeout(function () { controller.abort(), 100 });
+                    const res = await fetch(url);
+                    return res.ok;
+                } catch {
+                    return false;
+                }
+            }
+
+            async function autoReload(url) {
+                let online = true;
+                let isRestarting = false;
+                while (true) {
+                    await delay(500);
+                    online = await checkOnline(url);
+                    if (!online) {
+                        isRestarting = true;
+                    }
+                    if (online && isRestarting) {
+                        window.location.reload();
+                    }
+                }
+            }
+
+            autoReload("/version");
+        "###)) }
+    };
+    #[cfg(not(debug_assertions))]
+    return html! {};
+}
+
+/// Permite apagar o flash apenas clicando nele
 pub fn flash(message: &str, severity: &str) -> Markup {
     html! {
         script { r###"

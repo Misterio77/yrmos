@@ -5,10 +5,11 @@ use axum::{
 use axum::{routing::get, Router};
 use hyper::{header, HeaderMap};
 
-use super::files::include_out_file;
+use crate::common::files::include_out_file;
 
 pub const STYLESHEET_CONTENTS: &'static str = include_out_file!("/style.css");
-pub const STYLESHEET_HASH: &'static str = include_out_file!("/style.css.hash");
+pub const STYLESHEET_HASH: &'static str = include_out_file!("/style.hash");
+
 
 async fn style_route() -> Response {
     let headers: HeaderMap = [
