@@ -1,30 +1,7 @@
 { pkgs ? import <nixpkgs> { }, ... }:
 
 let
-  pgw = pkgs.writeShellScriptBin "pgw" ''
-    command="''${1:-none}"
-    if [ "$command" == "up" ]; then
-      mkdir -p "$PGHOST" "$PGDATA"
-      test -f "$PGDATA/PG_VERSION" && \
-        echo "Postgres is already initialized." || \
-        pg_ctl init
-      pg_ctl status &>/dev/null && \
-        echo "Postgres is already running." || \
-        pg_ctl start -o "-k $PGHOST" -l "$PGLOG"
-      psql -c '\q' &>/dev/null && \
-        echo "The $PGDATABASE database already exists" || \
-        psql postgres -c "CREATE DATABASE $PGDATABASE"
-    elif [ "$command" == "down" ]; then
-      pg_ctl status &>/dev/null && \
-        pg_ctl stop || \
-        echo "Postgres is already stopped."
-      rm -rf "$PGDATA" && echo "Data deleted."
-    else
-      echo "Usage: $(basename $0) <up/down>"
-    fi
-  '';
-
-  motd = pkgs.writeShellScriptBin "motd" ''
+  colors = ''
     RED='\033[0;31m'
     GREEN='\033[0;32m'
     YELLOW='\033[0;33m'
@@ -32,17 +9,37 @@ let
     PURPLE='\033[0;35m'
     CYAN='\033[0;36m'  
     NC='\033[0m'
-
-    echo -e $YELLOW"Sua shell e a aplicação estão configuradas para um postgres local."$NC
-    echo -e "Próximos passos:"
-    echo -e "1. Preparar a base:      " $GREEN"pgw up"$NC
-    echo -e "2. Executar a aplicação: " $GREEN"cargo wr"$NC
+  '';
+  yrmos_help = pkgs.writeShellScriptBin "yrmos_help" ''
+    ${colors}
+    echo -e $PURPLE"Próximos passos:"$NC
+    echo -e "1. Iniciar o postgres:   "$GREEN"pg_ctl start"$NC
+    echo -e "2. Executar a aplicação: "$GREEN"cargo wr"$NC
     echo -e ""
-    echo -e "Outros comandos:"
-    echo -e "- Compilar e executar:   " $YELLOW"cargo"$NC
-    echo -e "- Conectar à base:       " $YELLOW"psql"$NC
-    echo -e "- Gerenciar a base:      " $YELLOW"pg_ctl"$NC
-    echo -e "- Ver essa mensagem:     " $CYAN"motd"$NC
+    echo -e "Outros comandos disponíveis:"
+    echo -e "- Build tool:      "$YELLOW"cargo"$NC
+    echo -e "- Conectar à base: "$BLUE"psql"$NC
+    echo -e "- Gerir a base:    "$BLUE"pg_ctl"$NC
+    echo -e ""
+    echo -e "- Ver essa mensagem:     "$PURPLE"yrmos_help"$NC
+    echo -e "- Inicializar novamente: "$PURPLE"yrmos_init"$NC
+  '';
+  yrmos_init = pkgs.writeShellScriptBin "yrmos_init" ''
+    ${colors}
+    echo -e $PURPLE"Inicializando ambiente do Yrmos..."$NC
+
+    # Postgres
+    mkdir -p "$PGDATA"
+    if [ -z "$(ls -A "$PGDATA")" ]; then
+      pg_ctl init -o "-A trust" > /dev/null
+      echo "unix_socket_directories = '$PGDATA'" >> "$PGDATA/postgresql.conf"
+      echo -e $GREEN"Postgres inicializado."$NC
+    else
+      echo -e $YELLOW"Postgres já foi inicializado. Apague '$PGDATA' caso queira recomeçar."$NC
+    fi
+
+    echo -e $PURPLE"Ambiente inicializado."$NC
+    echo -e ""
   '';
 in
 (pkgs.callPackage ./default.nix { }).overrideAttrs (oa: {
@@ -58,27 +55,24 @@ in
     postgresql
     pgformatter
     sqls
-    # To generate secret
-    libressl
 
     # Scripts
-    motd
-    pgw
+    yrmos_help
+    yrmos_init
   ] ++ (oa.nativeBuildInputs or []);
 
-  # Random, but stable secret key while developing
-  # To avoid having to log in again all the time
   shellHook = ''
-    mkdir -p "$(pwd)/.db"
-    export PGDATA="$(pwd)/.db/data"
-    export PGHOST="$(pwd)/.db/socket"
-    export PGLOG="$(pwd)/.db/log"
-    export PGPORT="5430"
-    export PGDATABASE="yrmos"
-    export PGUSER="$USER"
-    export YRMOS_DATABASE="postgres://$PGUSER/$PGDATABASE?host=$PGHOST&port=$PGPORT"
-    export YRMOS_SECRET_KEY=$(openssl rand -base64 64)
+    export PGCOLOR="always"
+    export PGDATA="$(pwd)/.database"
 
-    motd
+    export PGHOST="$PGDATA"
+    export PGPORT="5430"
+    export PGDATABASE="postgres"
+    export PGUSER="$USER"
+    export YRMOS_DATABASE="psql://$PGUSER/$PGDATABASE?host=$PGHOST&port=$PGPORT"
+    export YRMOS_SECRET_KEY=$(${pkgs.libressl}/bin/openssl rand -base64 64)
+
+    yrmos_init
+    yrmos_help
   '';
 })

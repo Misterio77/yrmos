@@ -1,4 +1,4 @@
-{ pkgs, outputs, hostPlatform ? "x86_64-linux", ... }: {
+{ pkgs, outputs, hostPlatform ? "x86_64-linux", hostPort ? 8080, ... }: {
   imports = [ outputs.nixosModules.default ];
   nixpkgs = {
     inherit hostPlatform;
@@ -16,14 +16,14 @@
     virtualisation = {
       graphics = false;
       forwardPorts = [
-        { host.port = 8080; guest.port = 8080; }
+        { host.port = hostPort; guest.port = 8080; }
       ];
     };
     users = {
-      motd = ''
+      motd = let p = toString hostPort; in ''
         +--- --- --- --- --- --- --- --- --- --- --- --- --- ---+
         | Bem vindo a VM do Yrmos!                              |
-        | O sistema está disponível em http://localhost:8080    |
+        | O sistema está disponível em http://localhost:${p}    |
         | Para sair, desligue a VM ou aperte Ctrl+A X           |
         +--- --- --- --- --- --- --- --- --- --- --- --- --- ---+
       '';
