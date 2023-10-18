@@ -1,4 +1,6 @@
-{ pkgs, outputs, hostPlatform ? "x86_64-linux", hostPort ? 8080, ... }: {
+{ pkgs, outputs, hostPlatform ? "x86_64-linux", ... }: let
+  hostPort = 8080;
+in {
   imports = [ outputs.nixosModules.default ];
   nixpkgs = {
     inherit hostPlatform;
